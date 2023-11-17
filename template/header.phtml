@@ -1,0 +1,25 @@
+<input type="hidden" id="status-instancia" value="<?php echo $_SESSION['conectada_instancia'] == true ? 1 : 0;?>"/>
+<header class="header-infos d-flex justify-content-between">
+    <div id="header-routes" class="dinamic-rotes">
+    </div>
+    <div class="user-settings d-lg-flex d-none justify-content-center align-items-center">
+        <p data-replace-user="name" style="width:140px;height:20px;" class="fw-bold mb-0 me-3 placeholder-custom-size">
+        </p>
+    </div>
+    <div class="d-flex d-lg-none">
+        <div class=" d-flex menu-mobile mx-0 ms-3 me-lg-3">
+            <div id="toggle-container" class="toggle-container px-0 align-self-center position-relative">
+                <svg class="icon-burguer" xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z" />
+                </svg>
+                <svg class="icon-close" xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
+                    <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" />
+                </svg>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div id="page-loader" class="loader-wrapper d-flex justify-content-center align-items-center vw-100 vh-100 flex-column">
+    <img class="logo-loader" src="<?php echo $cdn;?>img/logo-colorido.png" alt="Logo HB Tech"/>
+</div>

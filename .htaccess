@@ -1,0 +1,35 @@
+RewriteEngine On
+
+RewriteRule ^login$            pages/auth/login.php
+
+RewriteRule ^$                 pages/admin/home.php
+RewriteRule ^home$             pages/admin/home.php
+
+## CATEGORIAS
+
+RewriteRule ^congressos$                 pages/contents/categories/list.php
+RewriteRule ^congressos/cadastrar$       pages/contents/categories/create.php
+RewriteRule ^congressos/editar/(.*)$     pages/contents/categories/edit.php?id=$1
+
+
+## SERVICOS
+
+RewriteRule ^servicos/disparos$                   pages/servicos/disparos/disparos.php
+RewriteRule ^servicos/disparo-unico$                   pages/servicos/disparos/disparo-unico.php
+RewriteRule ^servicos/historico-disparos$         pages/servicos/disparos/historico-disparos.php
+
+## MODELOS
+
+# RewriteRule ^modelos$                 pages/contents/models/list.php
+# RewriteRule ^modelos/cadastrar$       pages/contents/models/create.php
+# RewriteRule ^modelos/editar/(.*)$     pages/contents/models/edit.php?id=$1
+
+RewriteRule ^congressos/acessar$                  pages/contents/models/list.php
+RewriteRule ^congressos/cadastros/cadastrar$      pages/contents/models/create.php
+RewriteRule ^congressos/cadastros/editar$      pages/contents/models/edit.php
+
+
+<IfModule pagespeed_module>
+    ModPagespeed off
+</IfModule>
+
