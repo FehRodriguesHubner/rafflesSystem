@@ -95,7 +95,7 @@ window.addEventListener('DOMContentLoaded', function () {
             setCookie('name',name,1);
             setCookie('idUser',idUser,1);
             
-            window.location.href = baseAdminUrl + '/home';
+            window.location.href = baseAdminUrl + 'home';
         }
 
     });
