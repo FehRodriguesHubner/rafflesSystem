@@ -18,6 +18,7 @@ $botStatus = strval($json['botStatus']);
 $status = strval($json['status']);
 $triggerMessage = $json['triggerMessage'];
 $redirectLink = $json['redirectLink'];
+$adminPhones = $json['adminPhones'];
 
 if ($idGroup == null || $label == null || $phoneId == null || $link == null || $botStatus == null || $status == null) {
     http_response_code(400);
@@ -31,14 +32,15 @@ $sql = "UPDATE groups SET
     botStatus = ?,
     status = ?,
     triggerMessage = ?,
-    redirectLink = ?
+    redirectLink = ?,
+    adminPhones = ?
 WHERE idGroup = ?";
 
 $stmt = mysqli_prepare($db, $sql);
 
 if ($stmt) {
     // Associação de parâmetros
-    mysqli_stmt_bind_param($stmt, "sssiisss", $label, $phoneId, $link, $botStatus, $status, $triggerMessage, $redirectLink, $idGroup);
+    mysqli_stmt_bind_param($stmt, "sssiissss", $label, $phoneId, $link, $botStatus, $status, $triggerMessage, $redirectLink, $adminPhones, $idGroup);
     // Execução da consulta
     if (!mysqli_stmt_execute($stmt)) {
         http_response_code(500);

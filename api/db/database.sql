@@ -42,6 +42,7 @@ CREATE TABLE groups(
     label varchar(50) not null,
     phoneId varchar(50) not null,
     link text not null,
+    adminPhones longtext,
     botStatus boolean not null,
     status boolean not null,
     triggerMessage varchar(100),

@@ -6,6 +6,7 @@ const campos = [
     {label:'Telefone Grupo (Whatsapp ID)', key: 'phoneId'},
     {label:'Status do Bot', key: 'botStatus'},
     {label:'Status', key: 'status'},
+    {label:'Telefones Admin (separados por vírgula)', key: 'adminPhones'},
     {label:'Mensagem de Gatilho', key: 'triggerMessage'},
     {label:'Link de Redirecionamento', key: 'redirectLink'},
     //{label:'Ações', key: 'actions'},
@@ -226,6 +227,9 @@ async function renderDefaultForm(){
     $('#input-referenceCode')
         .attr('data-optional','true');
 
+    $('#input-adminPhones')
+    .attr('data-optional','true');
+
     maskInputs();
 
 
@@ -239,6 +243,16 @@ async function renderDefaultForm(){
 
             label.attr('data-required',true);
             label.html(`<b>${label.text()}*</b>`); 
+        }
+    });
+
+    $('#input-adminPhones').on('input', function() {
+        let validCharacters = /^[0-9,+]*$/;
+        let value = $(this).val();
+
+        // Remove any invalid characters
+        if (!validCharacters.test(value)) {
+            $(this).val(value.replace(/[^0-9,+]/g, ''));
         }
     });
     

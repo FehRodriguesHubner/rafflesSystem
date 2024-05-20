@@ -17,7 +17,7 @@ $phoneId = $json['phoneId'];
 $link = $json['link'];
 $botStatus = $json['botStatus'];
 $status = $json['status'];
-$referenceCode = $json['referenceCode'];
+$adminPhones = $json['adminPhones'];
 $triggerMessage = $json['triggerMessage'];
 $redirectLink = $json['redirectLink'];
 
@@ -46,8 +46,10 @@ $sql = "INSERT INTO groups(
     status,
     referenceCode,
     triggerMessage,
-    redirectLink
+    redirectLink,
+    adminPhones
 ) VALUES(
+    ?,
     ?,
     ?,
     ?,
@@ -64,7 +66,7 @@ $stmt = mysqli_prepare($db, $sql);
 
 if ($stmt) {
     // Associação de parâmetros
-    mysqli_stmt_bind_param($stmt, "sssssiiiss", $idGroup, $idStore, $label, $phoneId, $link, $botStatus, $status, $referenceCode, $triggerMessage, $redirectLink);
+    mysqli_stmt_bind_param($stmt, "sssssiiisss", $idGroup, $idStore, $label, $phoneId, $link, $botStatus, $status, $referenceCode, $triggerMessage, $redirectLink, $adminPhones);
     // Execução da consulta
     if (!mysqli_stmt_execute($stmt)) {
         http_response_code(500);
