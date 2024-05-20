@@ -505,9 +505,17 @@ async function renderDefault(){
 
                 // CUSTOM FIELDS //
                 switch(campo.key){
+                    case 'price':
+                        if(row[campo.key] != null ){
+                          
+                            field = `R$ ${  parseFloat(row[campo.key]).toLocaleString('pt-br',{minimumFractionDigits: 2})}`;
+                        }
+                            break;
                     case 'referenceCode':
                         if(row[campo.key] != null ){
-                            field = `${result.reference}S${row[campo.key]}`;
+                            let referenceCode = row[campo.key];
+                            referenceCode = referenceCode < 10 ? '0'+referenceCode : referenceCode;
+                            field = `${result.reference}S${referenceCode}`;
                         }
                             break;
                     case 'status':

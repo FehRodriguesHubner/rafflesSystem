@@ -40,7 +40,17 @@ WHERE groups.idGroup = '{$idGroup}';";
 $result = mysqli_query($db,$sql);
 $row = mysqli_fetch_assoc($result);
 $tree = "{$row['cGroupLabel']} - {$row['storeLabel']} - {$row['label']} - Sorteios";
-$reference = "GC{$row['cGroupRef']}L{$row['storeRef']}G{$row['ref']}";
+
+$cGroupRef = $row['cGroupRef'];
+$storeRef = $row['storeRef'];
+$ref = $row['ref'];
+
+$cGroupRef = $cGroupRef < 10 ? "0".$cGroupRef : $cGroupRef;
+$storeRef = $storeRef < 10 ? "0".$storeRef : $storeRef;
+$ref = $ref < 10 ? "0".$ref : $ref;
+
+$reference = "{$cGroupRef}L{$storeRef}G{$ref}";
+
 //////////////
 
 die(json_encode([
