@@ -13,9 +13,9 @@ $json = json_decode($json,true);
 
 $idStore = $json['id'];
 $label = $json['label'];
-$phoneId = $json['phoneId'];
+$phoneId = mysqli_real_escape_string($db,$json['phoneId']);
 $link = $json['link'];
-$botStatus = strval($json['botStatus']);
+$botStatus = "0";
 $status = strval($json['status']);
 $adminPhones = $json['adminPhones'];
 $triggerMessage = $json['triggerMessage'];
@@ -24,6 +24,13 @@ $redirectLink = $json['redirectLink'];
 if ($idStore == null || $label == null || $phoneId == null || $link == null || $botStatus == null || $status == null) {
     http_response_code(400);
     die();
+}
+
+$sql = "SELECT idGroup FROM groups WHERE phoneId = '{$phoneId}';";
+$result = mysqli_query($db,$sql);
+if(mysqli_num_rows($result) > 0){
+    http_response_code(400);
+    die(json_encode(['message' => 'Telefone Grupo (Whatsapp ID) já existente']));
 }
 
 $getRefCode = capturaSequencial('groups','idStore',mysqli_real_escape_string($db,$idStore));

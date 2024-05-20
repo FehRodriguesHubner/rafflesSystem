@@ -68,7 +68,7 @@ window.addEventListener('DOMContentLoaded', function () {
 
             try{
                 let json = await fetchResponse.json();
-                dispatchPopup('warning','Atenção inválido.',json.message);
+                dispatchPopup('warning','Atenção.',json.message);
             }catch(e){
                 dispatchPopup('error','Ocorreu um erro','Por favor, tente novamente mais tarde');
             }

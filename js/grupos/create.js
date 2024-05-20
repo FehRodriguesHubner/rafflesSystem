@@ -4,7 +4,7 @@ const campos = [
     {label:'Nome Grupo', key: 'label'},
     {label:'Link do Grupo', key: 'link'},
     {label:'Telefone Grupo (Whatsapp ID)', key: 'phoneId'},
-    {label:'Status do Bot', key: 'botStatus'},
+    //{label:'Status do Bot', key: 'botStatus'},
     {label:'Status', key: 'status'},
     {label:'Telefones Admin (separados por vírgula)', key: 'adminPhones'},
     {label:'Mensagem de Gatilho', key: 'triggerMessage'},
@@ -58,7 +58,7 @@ $(function(){
         jsonCampos.id = id;
 
         ///////
-        jsonCampos['botStatus'] = $('#input-botStatus').is(':checked') ? 1 : 0;
+        //jsonCampos['botStatus'] = $('#input-botStatus').is(':checked') ? 1 : 0;
         jsonCampos['status'] = $('#input-status').is(':checked') ? 1 : 0;
 
         // REQUISIÇÃO
@@ -74,7 +74,12 @@ $(function(){
         });
 
         if(fetchResponse.status != 200){
-            dispatchPopup('error','Ops! ocorreu um erro.','Não foi possível ao verificar o resultado de sua ação. Por favor, tente novamente mais tarde.');
+            try{
+                let json = await fetchResponse.json();
+                dispatchPopup('warning','Atenção.',json.message);
+            }catch(e){
+                dispatchPopup('error','Ops! ocorreu um erro.','Não foi possível ao verificar o resultado de sua ação. Por favor, tente novamente mais tarde.');
+            }
 
             return false;
 
