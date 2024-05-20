@@ -10,7 +10,7 @@ $token_json = json_decode(base64_decode($token),true);
 $senha     = $token_json['senha'];
 $id_user   = $token_json['id_user'];
 
-$sql = "SELECT active FROM pwpp_users WHERE id_user = '{$id_user}' AND password = '{$senha}' AND active = 1;";
+$sql = "SELECT active FROM users WHERE idUser = '{$id_user}' AND password = '{$senha}';";
 $result = mysqli_query($db,$sql);
 
 if(mysqli_num_rows($result) < 1){

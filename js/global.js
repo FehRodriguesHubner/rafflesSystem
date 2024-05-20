@@ -120,6 +120,10 @@ window.addEventListener(`DOMContentLoaded`, function(){
         }
     }
 
+    $('[data-btn-back]').on('click', function(){
+        history.back();
+    });
+
     /* Fim Máscaras de formulário */
 
 })
@@ -427,8 +431,13 @@ function popupLoading(){
 // JQUERY FUNCTIONS
 function maskInputs(){
     $('[data-mask="cpf"]').mask('000.000.000-00');
+    $('[data-mask="cnpj"]').mask('00.000.000/0000-00', {reverse: true});
+    $('[data-mask="number"]').mask('00000000000', {reverse: true});
     $('[data-mask="cep"]').mask('00000-000');
     $('[data-mask="birth"]').mask('00/00/0000');
+    $('[data-mask="date"]').mask('00/00/0000');
+    $('[data-mask="money"]').mask('000.000.000.000.000,00', {reverse: true});
+
 
     var SPMaskBehavior = function(val) {
         return val.replace(/\D/g, '').length === 11 ? '(00) 00000-0000' : '(00) 0000-00009';
@@ -461,6 +470,12 @@ function inputValidation(text, type = null) {
 
     if (type == 'cpf') {
         if (!validateCPF(text)) {
+            return false;
+        }
+    }
+
+    if (type == 'cnpj') {
+        if (!validarCNPJ(text)) {
             return false;
         }
     }
@@ -552,12 +567,68 @@ function validateCPF(cpf){
     return result;
 }
 
+function validarCNPJ(cnpj) {
+    // Remover caracteres não numéricos
+    cnpj = cnpj.replace(/[^\d]/g, '');
+
+    // Verificar se o CNPJ possui 14 dígitos
+    if (cnpj.length !== 14) {
+        return false;
+    }
+
+    // Verificar se todos os dígitos são iguais (ex: 00.000.000/0000-00)
+    if (/^(\d)\1{13}$/.test(cnpj)) {
+        return false;
+    }
+
+    // Validar dígitos verificadores
+    var tamanho = cnpj.length - 2;
+    var numeros = cnpj.substring(0, tamanho);
+    var digitos = cnpj.substring(tamanho);
+    var soma = 0;
+    var pos = tamanho - 7;
+
+    for (var i = tamanho; i >= 1; i--) {
+        soma += numeros.charAt(tamanho - i) * pos--;
+        if (pos < 2) {
+            pos = 9;
+        }
+    }
+
+    var resultado = soma % 11 < 2 ? 0 : 11 - (soma % 11);
+
+    if (resultado !== parseInt(digitos.charAt(0), 10)) {
+        return false;
+    }
+
+    tamanho = tamanho + 1;
+    numeros = cnpj.substring(0, tamanho);
+    soma = 0;
+    pos = tamanho - 7;
+
+    for (var i = tamanho; i >= 1; i--) {
+        soma += numeros.charAt(tamanho - i) * pos--;
+        if (pos < 2) {
+            pos = 9;
+        }
+    }
+
+    resultado = soma % 11 < 2 ? 0 : 11 - (soma % 11);
+
+    if (resultado !== parseInt(digitos.charAt(1), 10)) {
+        return false;
+    }
+
+    return true;
+}
+
+
 function triggerInputError(inputElement, text = null) {
     let inputContainer = inputElement.closest('.input-container');
-    inputContainer.classList.add('error');
+    inputContainer.addClass('error');
 
     if (text != null) {
-        inputContainer.querySelector('.input-message').innerHTML = text;
+        inputContainer.find('.input-message').html(text);
     }
 
 }

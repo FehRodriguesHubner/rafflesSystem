@@ -84,19 +84,16 @@ window.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            let email, name, user_level, id_user, emp_name;
+            let email, name, userLevel, idUser;
 
             email = jsonResoponse.email;
             name = jsonResoponse.name;
-            user_level  = jsonResoponse.user_level;
-            id_user  = jsonResoponse.id_user;
-            emp_name  = jsonResoponse.emp_name;
+            userLevel  = jsonResoponse.userLevel;
+            idUser  = jsonResoponse.idUser;
 
             setCookie('email',email,1);
             setCookie('name',name,1);
-            setCookie('user_level',user_level,1);
-            setCookie('id_user',id_user,1);
-            setCookie('emp_name',emp_name,1);
+            setCookie('idUser',idUser,1);
             
             window.location.href = baseAdminUrl + '/home';
         }

@@ -29,6 +29,10 @@ body {
     position: relative;
 }
 
+.table {
+    min-width: 800px;
+}
+
 .overlay {
     position: absolute;
     pointer-events: none;
@@ -246,6 +250,17 @@ body {
     padding: 14px 8px;
     border-radius: 4px !important;
     font-size: 14px;
+    transition: 0.3s;
+}
+
+.input-default.disabled{
+    background: #C3C4C5;
+}
+
+textarea.input-default{
+    height: 100px;
+    min-height: 44px;
+    transition: unset;
 }
 
 .input-default:focus-visible {

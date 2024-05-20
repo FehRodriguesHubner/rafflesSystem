@@ -2,31 +2,40 @@ RewriteEngine On
 
 RewriteRule ^login$            pages/auth/login.php
 
-RewriteRule ^$                 pages/admin/home.php
-RewriteRule ^home$             pages/admin/home.php
+RewriteRule ^$                                  pages/grupos-comerciais/list.php
+RewriteRule ^home$                              pages/grupos-comerciais/list.php
+RewriteRule ^grupos-comerciais$                 pages/grupos-comerciais/list.php
+RewriteRule ^grupos-comerciais/cadastrar$       pages/grupos-comerciais/create.php
+RewriteRule ^grupos-comerciais/editar/(.*)$     pages/grupos-comerciais/edit.php?id=$1
 
-## CATEGORIAS
+RewriteRule ^grupos-comerciais/acessar/(.*)$     pages/lojas/list.php?id=$1
 
-RewriteRule ^congressos$                 pages/contents/categories/list.php
-RewriteRule ^congressos/cadastrar$       pages/contents/categories/create.php
-RewriteRule ^congressos/editar/(.*)$     pages/contents/categories/edit.php?id=$1
+## LOJAS
+
+RewriteRule ^lojas/cadastrar/(.*)$      pages/lojas/create.php?id=$1
+RewriteRule ^lojas/editar/(.*)$         pages/lojas/edit.php?id=$1
+
+RewriteRule ^lojas/acessar/(.*)$        pages/grupos/list.php?id=$1
+
+## GRUPOS
+
+RewriteRule ^grupos/cadastrar/(.*)$      pages/grupos/create.php?id=$1
+RewriteRule ^grupos/editar/(.*)$         pages/grupos/edit.php?id=$1
+
+RewriteRule ^grupos/acessar/(.*)$        pages/sorteios/list.php?id=$1
+
+## SORTEIOS
+
+RewriteRule ^sorteios/cadastrar/(.*)$      pages/sorteios/create.php?id=$1
+RewriteRule ^sorteios/editar/(.*)$         pages/sorteios/edit.php?id=$1
+RewriteRule ^sorteios/acessar/(.*)$        pages/premios/list.php?id=$1
 
 
-## SERVICOS
+## SORTEIOS
 
-RewriteRule ^servicos/disparos$                   pages/servicos/disparos/disparos.php
-RewriteRule ^servicos/disparo-unico$                   pages/servicos/disparos/disparo-unico.php
-RewriteRule ^servicos/historico-disparos$         pages/servicos/disparos/historico-disparos.php
+RewriteRule ^premios/cadastrar/(.*)$      pages/premios/create.php?id=$1
+RewriteRule ^premios/editar/(.*)$         pages/premios/edit.php?id=$1
 
-## MODELOS
-
-# RewriteRule ^modelos$                 pages/contents/models/list.php
-# RewriteRule ^modelos/cadastrar$       pages/contents/models/create.php
-# RewriteRule ^modelos/editar/(.*)$     pages/contents/models/edit.php?id=$1
-
-RewriteRule ^congressos/acessar$                  pages/contents/models/list.php
-RewriteRule ^congressos/cadastros/cadastrar$      pages/contents/models/create.php
-RewriteRule ^congressos/cadastros/editar$      pages/contents/models/edit.php
 
 
 <IfModule pagespeed_module>

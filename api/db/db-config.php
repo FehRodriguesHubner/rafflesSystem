@@ -1,9 +1,10 @@
 <?php
+
 // Configurações do banco de dados
-$host = "localhost"; // Host do servidor MySQL
-$usuario = "root"; // Nome de usuário do MySQL
-$senha = "admin"; // Senha do MySQL
-$banco = "wpp_painel"; // Nome do banco de dados
+$host = $db_host; // Host do servidor MySQL
+$usuario = $db_usuario; // Nome de usuário do MySQL
+$senha = $db_senha; // Senha do MySQL
+$banco = $db_banco;
 
 // Criando uma conexão com o MySQL usando a extensão MySQLi
 $db = new mysqli($host, $usuario, $senha, $banco);
@@ -14,6 +15,7 @@ if ($db->connect_error) {
 }
 
 // Definindo o conjunto de caracteres para utf8 (opcional)
-$db->set_charset("utf8");
+$db->set_charset("utf8mb4");
+
 
 ?>

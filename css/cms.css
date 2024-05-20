@@ -1,3 +1,6 @@
+[data-btn-back]{
+	cursor: pointer;
+}
 .loader-wrapper {
 	opacity: 1;
 	background-color: white;

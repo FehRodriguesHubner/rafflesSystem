@@ -1,0 +1,408 @@
+.form-wrapper{
+    justify-content: center;
+    
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    display: flex;
+    position: relative;
+}
+.login-image-container{
+    width: 971px;
+    height: 100%;
+    background-position: top;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+.form-container{
+    background-color: #F2F5F8;
+    width: calc(100% - 971px);
+    max-width: 100%;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.form-box{
+    height: fit-content;
+    max-width: 300px;
+    width: fit-content;
+    background-color: #ffff;
+    max-width: 97%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 32px;
+    gap: 64px;
+    border: 1px solid #CCD1D6;
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.15);
+    border-radius: 16px;
+}
+.form-box.large{
+    max-width: unset;
+}
+
+.form-content{
+    max-width: 300px;
+}
+
+.form-items{
+    max-width: 300px;
+}
+
+.form-title{
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 100%;
+    text-align: center;
+}
+
+.form-subtitle{
+    font-weight: 700;
+font-size: 18px;
+line-height: 27px;
+/* or 27px */
+/* Gray 6 */
+color: #5A646E;
+}
+
+.button-submit-form{
+    width: 300px;
+}
+
+
+
+/* CHECK BOX */
+/* Customize the label (the container) */
+.chk-container {
+    display: block;
+    position: relative;
+    padding-left: calc(16px + 8px) ;
+    line-height: 1;
+    font-size: 14px;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    font-weight: 600;
+  }
+  
+  /* Hide the browser's default checkbox */
+  .chk-container input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+  }
+  
+  /* Create a custom checkbox */
+  .checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 16px;
+    width: 16px;
+    background-color: none;
+    border: 2px solid #011833;
+    border-radius: 3px;
+  }
+  
+  /* When the checkbox is checked, add a blue background */
+  .chk-container input:checked ~ .checkmark {
+    background-color: var(--color-primary-500);
+  }
+  
+  /* Create the checkmark/indicator (hidden when not checked) */
+  .checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+  }
+  
+  /* Show the checkmark when checked */
+  .chk-container input:checked ~ .checkmark:after {
+    display: block;
+  }
+  
+  /* Style the checkmark/indicator */
+  .chk-container .checkmark:after {
+    left: 50%;
+    top: 50%;
+    width: 3px;
+    height: 5px;
+    border: solid white;
+    border-width: 0 1px 1px 0;
+    -webkit-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    transform: translateY(-50%) translateX(-50%) rotate(45deg);
+  }
+  
+
+  /* END CHECKBOX */
+/* RADIO  */
+/* Customize the label (the container) */
+.rb-container {
+    display: block;
+    position: relative;
+    padding-left: calc(16px + 8px) ;
+    line-height: 1;
+    font-size: 14px;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    font-weight: 600;
+  }
+  
+  /* Hide the browser's default checkbox */
+  .rb-container input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+  }
+  
+  /* Create a custom checkbox */
+  .rb-checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 16px;
+    width: 16px;
+    background-color: none;
+    border: 2px solid #5A646E;
+    border-radius: 100px;
+  }
+  
+  /* When the checkbox is checked, add a blue background */
+  .rb-container input:checked ~ .rb-checkmark {
+    background-color: var(--color-primary-500);
+  }
+  
+
+  
+  /* Show the checkmark when checked */
+  .rb-container input:checked ~ .rb-checkmark:after {
+    display: block;
+  }
+
+
+  /* END RADIO */
+.link-path:hover{
+    color: #024C77 !important;
+}
+.link-path{
+    font-weight: 700;
+    color: #024C77;
+    text-decoration: none;
+}
+.terms-link:hover{
+    color: #1c708a;
+
+}
+.terms-link{
+    color: #2898BA;
+    font-weight: 700;
+    text-decoration: none;
+    transition: 0.3s;
+}
+.text-gray{
+    color: #5A646E;
+}
+.text-cadastro{
+    color: #5A646E;
+    white-space: nowrap;
+    width: 100%;
+}
+
+.button-cadastro-wrapper{
+    bottom: 23px;
+}
+
+.form-button-option span{
+    text-decoration: none !important;
+}
+
+.form-button-option:hover{
+    border-color: var(--color-primary-500);
+    color: var(--color-primary-500);
+}
+
+.form-button-option{
+    transition: 0.3s;
+    background-color: #ffff;
+    color: #3B454F;
+    padding: 12px 16px;
+    border: 1px solid #CCD1D6;
+    border-radius: 4px;
+    width: calc(300px/2 - 0.5rem);
+    height: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 21px;
+    text-align: center;
+    text-decoration: none;
+}
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+/* LARGE FORM  */
+
+.form-large-container{
+    display: flex;
+    min-height: 100vh;
+    padding-top: 24px;
+    padding-bottom: 24px;
+    width: 100vw;
+    justify-content: center;
+    align-items: center;
+}
+
+.form-box.large{
+    width: 680px;
+    max-width: 98%;
+}
+
+.form-box.large .input-container{
+    width: 100%;
+}
+.form-box.large .input-box{
+    width: 100%;
+}
+
+/* INPUT FILE */
+
+.input-file-box{
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: auto;
+    padding: 24px;
+    flex-direction: column;
+    background: #F2F5F8;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 18px;
+    text-align: center;
+    color: #5A646E;
+    border: 2px dashed #ACB4BA;
+    border-radius: 8px;
+}
+.input-file-box p{
+    margin-bottom: 0;
+}
+
+.input-file-title{
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 100%;
+    display: flex;
+    align-items: center;
+    text-align: center;
+    color: #5A646E;
+}
+@media screen and (max-width:1700px) {
+    .login-image-container{
+        width: 871px;
+        
+    }
+    .form-container{
+        width: calc(100% - 871px);
+        
+    }
+}
+@media screen and (max-width:1400px) {
+    .login-image-container{
+        width: 671px;
+        
+    }
+    .form-container{
+        width: calc(100% - 671px);
+        
+    }
+}
+@media screen and (max-width:1200px) {
+    .login-image-container{
+        width: 571px;
+        
+    }
+    .form-container{
+        width: calc(100% - 571px);
+        
+    }
+}
+@media screen and (max-width:1100px) {
+    .login-image-container{
+        width: 471px;
+        
+    }
+    .form-container{
+        width: calc(100% - 471px);
+        
+    }
+}
+@media screen and (max-width:992px) {
+    .login-image-container{
+        width: 100vw;
+        height: 100vh;
+        top:0;
+        left: 0;
+        position: absolute;
+        z-index: -1;
+    }
+    .form-overlay{
+        position: absolute;
+        top: 0;
+        left:0;
+        height: 100vh;
+        width: 100vw;
+        background-color: rgba(0, 0, 0, 0.37);
+    }
+    .form-container{
+        background-color: transparent;
+        z-index: 1;
+        width:100%;
+        align-items: start;
+        padding-top: 32px;
+    }
+    .text-cadastro{
+        color: white;
+        white-space: unset;
+    }
+    .button-submit-form{
+        width: 300px;
+    }
+}
+
+@media screen and (max-width:375px) {
+
+    .button-submit-form{
+        width: 260px;
+        margin: auto;
+    }
+
+    .input-box{
+        width: 260px;
+    }
+
+}

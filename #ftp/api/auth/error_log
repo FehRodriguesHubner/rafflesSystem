@@ -1,0 +1,6 @@
+[30-Oct-2023 20:00:33 America/Sao_Paulo] PHP Fatal error:  Uncaught mysqli_sql_exception: Access denied for user 'neodev_whatsapp'@'localhost' (using password: YES) in /home/neodev/public_html/whatsapp.neo-e.dev.br/api/db/db-config.php:9
+Stack trace:
+#0 /home/neodev/public_html/whatsapp.neo-e.dev.br/api/db/db-config.php(9): mysqli->__construct('localhost', 'neodev_whatsapp', 'neodev_whatsapp', 'wpp_painel')
+#1 /home/neodev/public_html/whatsapp.neo-e.dev.br/api/auth/login.php(7): require_once('/home/neodev/pu...')
+#2 {main}
+  thrown in /home/neodev/public_html/whatsapp.neo-e.dev.br/api/db/db-config.php on line 9

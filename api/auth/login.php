@@ -20,19 +20,12 @@ foreach($array_validate as $input){
     }
 }
 
-
 // Preparação da consulta
 $sql = "SELECT 
-    u.id_user, 
-    u.active, 
-    u.`name`, 
-    u.user_level, 
-    u.id_enterprise, 
-    e.name as e_name 
-    FROM pwpp_users u 
-    INNER JOIN pwpp_enterprises e 
-    USING(id_enterprise) 
-    WHERE u.email = ? AND u.password = md5(?) 
+    idUser,
+    `name`
+    FROM users
+    WHERE email = ? AND password = md5(?) 
     LIMIT 1;
 ";
 
@@ -63,24 +56,13 @@ if(mysqli_num_rows($result) < 1){
 
 $row = mysqli_fetch_assoc($result);
 
-$active = $row['active'];
-$id_user = $row['id_user'];
+$idUser = $row['idUser'];
 $name = $row['name'];
-$user_level = $row['user_level'];
-$id_enterprise = $row['id_enterprise'];
-$e_name = $row['e_name'];
 
-if($active != 1){
-    http_response_code(403);
-    die(json_encode(['message' => 'Usuário desativado']));
-}
-
-$_SESSION['id_user'] = $id_user;
+$_SESSION['idUser'] = $idUser;
 $_SESSION['name'] = $name;
 $_SESSION['email'] = $email;
-$_SESSION['user_level'] = $user_level;
-$_SESSION['id_enterprise'] = $id_enterprise;
-$_SESSION['e_name'] = $e_name;
+$_SESSION['email'] = $email;
 
 // Fechar a declaração
 mysqli_stmt_close($stmt);
@@ -90,8 +72,5 @@ die(json_encode([
     'message' => 'Login realizado com sucesso',
     'name' => $name,
     'email' => $email,
-    'user_level' => $user_level,
-    'id_user' => $id_user,
-    'emp_name' => $e_name
-
+    'idUser' => $idUser
 ]));

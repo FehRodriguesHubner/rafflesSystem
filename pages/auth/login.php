@@ -25,16 +25,17 @@ session_destroy();
     <link rel="stylesheet" href="<?php echo $cdn?>css/auth-styles.css">
 
     <title>HB Tech - Admin Login</title>
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-<link rel="manifest" href="/site.webmanifest">
-<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+    <link rel="apple-touch-icon" sizes="180x180" href="<?php echo $url;?>apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="<?php echo $url;?>favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="<?php echo $url;?>favicon-16x16.png">
+<link rel="manifest" href="<?php echo $url;?>site.webmanifest">
+<link rel="mask-icon" href="<?php echo $url;?>safari-pinned-tab.svg" color="#5bbad5">
 <meta name="msapplication-TileColor" content="#da532c">
 <meta name="theme-color" content="#ffffff">
 </head>
 
 <body>
+    <input type="hidden" id="url" value="<?php echo $url;?>"/>
     <div id="page-loader" class="loader-wrapper d-flex justify-content-center align-items-center vw-100 vh-100 flex-column">
         <img class="logo-loader" src="<?php echo $cdn;?>img/logo-colorido.png" alt="Logo HB Tech"/>
     </div>
@@ -43,10 +44,10 @@ session_destroy();
         <div class="form-wrapper">
             <div class="form-container position-relative d-flex">
                 <section class="form-box">
-                    <!-- LOGO -->
+                    <!-- LOGO 
                     <a href="<?php echo $cdn?>" class="logo">
                         <img width="213" src="<?php echo $cdn;?>img/logo-color.png" alt="Logo HB Tech"/>
-                    </a>
+                    </a>-->
                     <div class="form-content d-flex flex-column">
                         <!-- TITLE -->
                         <h1 class="form-title mb-3">Login administrativo</h1>
