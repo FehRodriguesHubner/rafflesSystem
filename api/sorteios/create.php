@@ -11,7 +11,7 @@ require_once(__DIR__ . '/../utils/functions.php');
 $json = file_get_contents('php://input');
 $json = json_decode($json,true);
 
-$idGroup = $json['id'];
+$idGroup = mysqli_real_escape_string($db,$json['id']);
 $status = strval($json['status']);
 $statusAux = 0;
 $raffleDate = empty($json['raffleDate']) ? null : $json['raffleDate'];
@@ -96,10 +96,34 @@ if($status == 1){
         http_response_code(200);
         die();
     }
-    
-    $sql = "UPDATE raffles SET status = {$status} WHERE idRaffle = '{$idRaffle}';";
+
+    $sql = "SELECT status 
+    FROM groups
+    WHERE idGroup = '{$idGroup}' AND status != 1";
     $result = mysqli_query($db,$sql);
+
+    if(mysqli_num_rows($result) > 0 ){
+        http_response_code(200);
+        die();
+    }
+    
+    $sql = "UPDATE raffles SET status = 1 WHERE idRaffle = '{$idRaffle}';";
+    $result = mysqli_query($db,$sql);
+
 }
+
+// ativa/desativa bot grupo
+$sql = "SELECT idRaffle 
+FROM raffles
+WHERE status = 1 AND idGroup = '{$idGroup}'";
+$result = mysqli_query($db,$sql);
+
+if(mysqli_num_rows($result) > 0 ){
+    $sql = "UPDATE groups SET botStatus = 1 WHERE idGroup = '{$idGroup}';";
+}else{
+    $sql = "UPDATE groups SET botStatus = 0 WHERE idGroup = '{$idGroup}';";   
+}
+$result = mysqli_query($db,$sql);
 
 
 http_response_code(200);

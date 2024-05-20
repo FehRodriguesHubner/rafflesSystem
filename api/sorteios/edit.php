@@ -48,26 +48,55 @@ if ($stmt) {
     die(json_encode(['message' => 'Erro ao efetuar atualização', 'debug' => mysqli_error($db)]));
 }
 
-// busca se tem outros ativos
-if($status == 1){
-    $sql = "SELECT idRaffle 
-    FROM raffles
-    WHERE status = 1 AND idGroup = (
-        SELECT idGroup FROM raffles WHERE idRaffle = '{$idRaffle}'
-    )";
-    $result = mysqli_query($db,$sql);
+// busca id do grupo
+$sql = "SELECT idGroup FROM raffles WHERE idRaffle = '{$idRaffle}'";
+$result = mysqli_query($db,$sql);
+$row = mysqli_fetch_assoc($result);
+$idGroup = $row['idGroup'];
 
-    if(mysqli_num_rows($result) > 0 ){
+// busca se tem outros ativos
+$sql = "SELECT idRaffle FROM raffles WHERE status = 1 AND idGroup = '{$idGroup}' AND idRaffle != '{$idRaffle}'";
+$result = mysqli_query($db,$sql);
+$rafflesActive = mysqli_num_rows($result);
+if($status == 1){
+    // verifica se há outros sorteios ativos
+    if($rafflesActive > 0 ){
         http_response_code(200);
-        die();
+        die('rafflesActive: '. $rafflesActive);
     }
 
+    // verifica se já vendeu todos os números
+    $sql = "SELECT count(*) as num FROM participants WHERE idRaffle = '{$idRaffle}';";
+    $result = mysqli_query($db,$sql);
+    $row = mysqli_fetch_assoc($result);
+    $participantsNumber = intval($row['num']);
+
+    $sql = "SELECT numbers FROM raffles WHERE idRaffle = '{$idRaffle}';";
+    $result = mysqli_query($db,$sql);
+    $row = mysqli_fetch_assoc($result);
+    $numbers = intval($row['numbers']);
+
+    if($participantsNumber >= $numbers){
+        http_response_code(200);
+        die('mais participantes: '.$participantsNumber .' ' . $numbers);
+    }
 }
 
+// ativa/desativa bot grupo
+if($rafflesActive == 0){
+    if($status == 1){
+        $sqlGroup = "UPDATE groups SET botStatus = 1 WHERE idGroup = '{$idGroup}';";
+    }else{
+        $sqlGroup = "UPDATE groups SET botStatus = 0 WHERE idGroup = '{$idGroup}';";   
+    }
+}
+$result = mysqli_query($db,$sqlGroup);
+
+// atualiza status do sorteio
 $sql = "UPDATE raffles SET status = {$status} WHERE idRaffle = '{$idRaffle}';";
 $result = mysqli_query($db,$sql);
 
 http_response_code(200);
-die();
+die($sqlGroup);
 
 ?>

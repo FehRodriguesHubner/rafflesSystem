@@ -30,7 +30,7 @@ function capturaSequencial($type,$typeId,$id){
 function sendZAPIReq($payload,$encode = false)
 {
     global $messageEndpoint, $clientToken;
-
+    return true;
     if($messageEndpoint == null){
         return false;
     }

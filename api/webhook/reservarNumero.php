@@ -10,11 +10,11 @@ require_once(__DIR__ . '/../utils/functions.php');
 require_once(__DIR__ . '/webhook-config.php');
 
 // DEFINIÇÕES
-//$messageEndpoint = "https://api.z-api.io/instances/3CDB39D34A9AA0A9F6BBBE5925AA0C3E/token/9E79847126558B68BA22EFFF/send-text";
-//$clientToken = "F89f55d08c2164b36b206c9200107f8f5S";
+//$messageEndpoint = "https://teste.com/instances/{$instancia}/token/{$tokenZapi}/send-text";
+//$clientToken = "00107f8f5S";
 
-$messageEndpoint = "test";
-$clientToken = "F89f55";
+$messageEndpoint = "dummy.com";
+$clientToken = "testToken";
 $pixKey = "50367535000173";
 
 
@@ -27,6 +27,7 @@ $messageId          = $req['messageId'];
 
 $participantPhoneId = mysqli_real_escape_string($db,$req['participantPhone']);
 $senderName         = mysqli_real_escape_string($db,$req['senderName']);
+$inputMessage       = $req['text']['message'];
 
 if(
     empty($phoneId) ||
@@ -47,6 +48,8 @@ if(!$result = mysqli_query($db,$sql)){
 }
 if(mysqli_num_rows($result) < 1) die(json_encode(['ref' => 2]));
 
+$row = mysqli_fetch_assoc($result);
+
 $idGroup = $row['idGroup'];
 $botStatus = $row['botStatus'];
 $statusGroup = $row['status'];
@@ -63,30 +66,32 @@ if($adminPhones != null){
 }
 
 ///
-sleep(4);
+//sleep(4);
 
 /// TESTA MENSAGEM INPUTADA (TEXTOMATRIZ)
-$inputMessage = $req['text']['message'];
-if(explode(' ',$inputMessage) <= 3 && is_nan($inputMessage)){
+if(
+    explode(' ',$inputMessage) <= 3 &&
+    !is_numeric($inputMessage)
+){
     // enviando retorno de mensagem incorreta
     $reqRes = sendZAPIReq(
-        `{
-            "phone": "{$phoneId}",
-            "message": "🚫 Digite na mensagem somente o número desejado. _(Ex: *12*)_
+        "{
+            \"phone\": \"{$phoneId}\",
+            \"message\": \"🚫 Digite na mensagem somente o número desejado. _(Ex: *12*)_
           
           ⚠️ Só 1 número por mensagem.
           _Se quiser escolher mais números, envie cada um em uma mensagem separada._
           
-          📱 _*Se precisa falar com o suporte, utilize o número que está na descrição do grupo.*_",
-            "messageId": "{$messageId}"
-        }`, false
+          📱 _*Se precisa falar com o suporte, utilize o número que está na descrição do grupo.*_\",
+            \"messageId\": \"{$messageId}\"
+        }", false
     );
     
     http_response_code(400);
     die(json_encode(['ref' => 5, 'req' => $reqRes]));
 }
 
-if(is_nan(intval(substr($inputMessage,0,2)))){
+if(!is_numeric($inputMessage)){
     http_response_code(400);
     die(json_encode(['ref' => 6]));
 }
@@ -94,12 +99,14 @@ if(is_nan(intval(substr($inputMessage,0,2)))){
 $chosenNumber = intval($inputMessage);
 
 /// PESQUISA POR SORTEIOS
-$sql = "SELECT idRaffle, numbers, referenceCode, price, instructions, percentageNotify, flatNotify FROM raffles WHERE idGroup = '{$idGroup}' AND `status` = 1;";
+$sql = "SELECT idRaffle, numbers, referenceCode, price, instructions, percentageNotify, flatNotify, buyLimit FROM raffles WHERE idGroup = '{$idGroup}' AND `status` = 1;";
 if(!$result = mysqli_query($db,$sql)){
     http_response_code(500);
     die(json_encode(['ref' => 7, 'debug' => mysqli_error($db)]));
 }
 if(mysqli_num_rows($result) < 1) die(json_encode(['ref' => 8]));
+
+$row = mysqli_fetch_assoc($result);
 
 $idRaffle = $row['idRaffle'];
 $numbers = intval($row['numbers']);
@@ -107,6 +114,7 @@ $refCodeRaffle = intval($row['referenceCode']);
 $instructionsRaffle = intval($row['instructions']);
 $percentageNotify = intval($row['percentageNotify']);
 $flatNotify = intval($row['flatNotify']);
+$buyLimit = intval($row['buyLimit']);
 $price = floatval($row['price']);
 
 $priceBRL = number_format($price, 2, ',', '.');
@@ -116,14 +124,14 @@ $priceBRL = number_format($price, 2, ',', '.');
 if($chosenNumber > $numbers || $chosenNumber <= 0 ){
     // enviando retorno de mensagem incorreta
     $reqRes = sendZAPIReq(
-        `{
-            "phone": "{$phoneId}",
-            "message": "⚠️ _*Reserva não efetuada! - Número {$chosenNumber}*_
+        "{
+            \"phone\": \"{$phoneId}\",
+            \"message\": \"⚠️ _*Reserva não efetuada! - Número {$chosenNumber}*_
           
           O sorteio atual permite somente números entre 1 e {$numbers}.
-          Selecione outro número para participar...",
-            "messageId": "{$messageId}"
-         }`, false
+          Selecione outro número para participar...\",
+            \"messageId\": \"{$messageId}\"
+         }", false
     );
     
     http_response_code(400);
@@ -131,7 +139,7 @@ if($chosenNumber > $numbers || $chosenNumber <= 0 ){
 }
 
 /// VERIFICA SE NÚMERO JÁ NÃO FOI ESCOLHIDO
-$sql = "SELECT drawnNumber FROM participants WHERE idRaffle = '{$idRaffle}';";
+$sql = "SELECT drawnNumber FROM participants WHERE idRaffle = '{$idRaffle}' AND drawnNumber = {$chosenNumber};";
 if(!$result = mysqli_query($db,$sql)){
     http_response_code(500);
     die(json_encode(['ref' => 10, 'debug' => mysqli_error($db)]));
@@ -139,19 +147,44 @@ if(!$result = mysqli_query($db,$sql)){
 if(mysqli_num_rows($result) > 0){
 
     $reqRes = sendZAPIReq(
-        `{
-            "phone": "{$phoneId}",
-            "message": "🚫 _*Reserva não efetuada!*_
+        "{
+            \"phone\": \"{$phoneId}\",
+            \"message\": \"🚫 _*Reserva não efetuada!*_
 
             O número *{$chosenNumber}* não está mais disponível.
-            Selecione outro número para participar...",
-            "messageId": "{$messageId}"
-         }`, false
+            Selecione outro número para participar...\",
+            \"messageId\": \"{$messageId}\"
+         }", false
     );
     
     http_response_code(400);
     die(json_encode(['ref' => 11]));
 } 
+
+/// VERIFICA SE JÁ NÃO ATINGIU O LIMITE
+if($buyLimit > 0){
+    $sql = "SELECT count(*) as num FROM participants WHERE idRaffle = '{$idRaffle}' AND phoneId = '{$participantPhoneId}';";
+    if(!$result = mysqli_query($db,$sql)){
+        http_response_code(500);
+        die(json_encode(['ref' => 11.1, 'debug' => mysqli_error($db)]));
+    }
+    $row = mysqli_fetch_assoc($result);
+    $participantNumbers = intval($row['num']);
+    if($participantNumbers >= $buyLimit){
+        $reqRes = sendZAPIReq(
+            "{
+                \"phone\": \"{$phoneId}\",
+                \"message\": \"🚫 _*Reserva não efetuada!*_
+    
+                Você não pode efetuar mais de {$buyLimit} reserva(s).\",
+                \"messageId\": \"{$messageId}\"
+             }", false
+        );
+        
+        http_response_code(400);
+        die(json_encode(['ref' => 11.2]));
+    }
+}
 
 /// EFETUA A RESERVA
 $idParticipant = getUUID();
@@ -184,11 +217,11 @@ if ($stmt) {
 
 /// NOTIFICA NÚMERO RESERVADO
 $reqResReservado = sendZAPIReq(
-    `{
-        "phone": "{$phoneId}",
-        "message": "✅ Número *{$chosenNumber}* reservado para você {$senderName}",
-        "messageId": "{$messageId}"
-     }`, false
+    "{
+        \"phone\": \"{$phoneId}\",
+        \"message\": \"✅ Número *{$chosenNumber}* reservado para você {$senderName}\",
+        \"messageId\": \"{$messageId}\"
+     }", false
 );
 
 
@@ -218,7 +251,7 @@ while($row = mysqli_fetch_assoc($result)){
 $participantsString = "";
 $lastNumbersString = "";
 for( $index = 1; $index <= $numbers; $index++){
-    $drawnNumber = $index < 10 ? "0{$drawnNumber}" : $drawnNumber;
+    $drawnNumber = $index < 10 ? "0{$index}" : $index;
 
     $participantsString .= PHP_EOL ."{$drawnNumber} - ";
 
@@ -284,9 +317,9 @@ PIX  para ficar fácil de copiar⤵️
 
 /// NOTIFICA NOVA LISTA
 $reqResList = sendZAPIReq(
-    `{
-        "phone": "{$phoneId}",
-        "message": "
+    "{
+        \"phone\": \"{$phoneId}\",
+        \"message\": \"
         {$labelGroup}
         {$referenceRaffle}
         🔥  *VALOR: R$ {$priceBRL} por número.*
@@ -299,38 +332,50 @@ $reqResList = sendZAPIReq(
         
         {$participantsString}
         
-        {$footerString}"
-     }`, false
+        {$footerString}\"
+     }", false
 );
 
 /// DESLIGA BOT SE NUMEROS ESGOTARAM
 if(count($jsonParticipants) >= $numbers ){
     $reqResList = sendZAPIReq(
-        `{
-            "phone": "{$phoneId}",
-            "message": "Números Esgotados
-            Conferindo aqui os pagamentos e já vamos para o sorteio."
-         }`, false
+        "{
+            \"phone\": \"{$phoneId}\",
+            \"message\": \"Números Esgotados
+            Conferindo aqui os pagamentos e já vamos para o sorteio.\"
+         }", false
     );
 
     // notifica admins
     if($adminPhones != null){
         foreach($adminPhones as $adminPhone){
             $reqResList = sendZAPIReq(
-                `{
-                    "phone": "{$adminPhone}",
-                    "message": "✅ *Venda finalizada*
+                "{
+                    \"phone\": \"{$adminPhone}\",
+                    \"message\": \"✅ *Venda finalizada*
 
                     - Grupo: {$labelGroup}
                     - Sorteio: {$referenceRaffle}
                     - Números Vendidos: {$numbers}
                     
-                    Confira os pagamentos e execute o sorteio."
-                 }`, false
+                    Confira os pagamentos e execute o sorteio.\"
+                 }", false
             );
         }
     }
 
+    //desliga bot
+    $sql = "UPDATE groups set botStatus = 0 WHERE idGroup = '{$idGroup}';";
+    if(!$result = mysqli_query($db,$sql)){
+        http_response_code(500);
+        die(json_encode(['ref' => 18, 'debug' => mysqli_error($db)]));
+    }
+    //desliga sorteio
+    $sql = "UPDATE raffles set status = 0 WHERE idRaffle = '{$idRaffle}';";
+    if(!$result = mysqli_query($db,$sql)){
+        http_response_code(500);
+        die(json_encode(['ref' => 19, 'debug' => mysqli_error($db)]));
+    }
 
     http_response_code(200);
     die();
@@ -348,12 +393,12 @@ if($flatNotify > 0 || $percentageNotify > 0){
     if($remaining == 1){
         
         $reqResLastNumbers = sendZAPIReq(
-            `{
-                "phone": "{$phoneId}",
-                "message": "*Último número livre*
+            "{
+                \"phone\": \"{$phoneId}\",
+                \"message\": \"*Último número livre*
                 {$lastNumbersString}
-                "
-            }`, false
+                \"
+            }", false
         );
 
     }else {
@@ -378,13 +423,13 @@ if($flatNotify > 0 || $percentageNotify > 0){
 
         if($notify === true){
             $reqResLastNumbers = sendZAPIReq(
-                `{
-                    "phone": "{$phoneId}",
-                    "message": "Últimos números livres
+                "{
+                    \"phone\": \"{$phoneId}\",
+                    \"message\": \"Últimos números livres
 
                     {$lastNumbersString}
-                    "
-                }`, false
+                    \"
+                }", false
             );
         }
     }
