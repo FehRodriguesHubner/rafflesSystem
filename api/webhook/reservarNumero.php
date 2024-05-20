@@ -1,5 +1,10 @@
 <?php
 
+
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+require_once(__DIR__ . '/../../config/https-redirect.php');
 require_once(__DIR__ . '/../db/db-config.php');
 require_once(__DIR__ . '/../utils/functions.php');
 require_once(__DIR__ . '/webhook-config.php');
@@ -17,10 +22,6 @@ $pixKey = "50367535000173";
 // veio de algum grupo
 $req = $json;
 
-if($req['isGroup'] != true) die();
-
-if(empty($req['text']) || empty($req['text']['message']) ) die();
-
 $phoneId            = mysqli_real_escape_string($db,$req['phone']);
 $messageId          = $req['messageId'];
 
@@ -29,9 +30,13 @@ $senderName         = mysqli_real_escape_string($db,$req['senderName']);
 
 if(
     empty($phoneId) ||
-    empty($messageId)
+    empty($messageId) ||
+    empty($req['text']) || 
+    empty($req['text']['message']) ||
+    $req['isGroup'] != true
 ){
-    die(json_encode(['ref' => 0, 'debug' => mysqli_error($db)]));
+    http_response_code(400);
+    die(json_encode(['ref' => 0]));
 }
 
 /// BUSCA GRUPO
