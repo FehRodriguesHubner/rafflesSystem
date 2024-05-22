@@ -364,58 +364,54 @@ if(count($jsonParticipants) >= $numbers ){
 
 }
 
+// Calcular a quantidade de números restantes
+$sold = count($jsonParticipants);
+$remaining = $numbers - $sold;
+
+if($remaining == 1){
+    $reqResLastNumbers = sendZAPIReq(
+        [
+            "phone" => "{$phoneId}",
+            "message" =>    "*Último número livre*".PHP_EOL.
+                            "{$lastNumbersString}"
+        ]
+    );
+
+} else
+
 /// NOTIFICA NUMEROS RESTANTES
 if($flatNotify > 0 || $percentageNotify > 0){
     // vendidos
-    $sold = count($jsonParticipants);
+    if($percentageNotify > 0 ){
 
-    // Calcular a quantidade de números restantes
-    $remaining = $numbers - $sold;
+        // Calcular a porcentagem de números restantes
+        $remainingPercentage = ($remaining / $numbers) * 100;
 
-    if($remaining == 1){
-        
-        $reqResLastNumbers = sendZAPIReq(
-            [
-                "phone" => "{$phoneId}",
-                "message" =>    "*Último número livre*".PHP_EOL.
-                                "{$lastNumbersString}"
-            ]
-        );
-
-    }else {
-        if($percentageNotify > 0 ){
-    
-            // Calcular a porcentagem de números restantes
-            $remainingPercentage = ($remaining / $numbers) * 100;
-    
-            if ($remainingPercentage <= $percentageNotify) {
-                $notify = true;
-            } else {
-                $notify = false;
-            }
-    
-        } else if($flatNotify > 0){
-    
-            if($remaining <= $flatNotify){
-                $notify = true;
-            }
-    
+        if ($remainingPercentage <= $percentageNotify) {
+            $notify = true;
+        } else {
+            $notify = false;
         }
 
-        if($notify === true){
-            $reqResLastNumbers = sendZAPIReq(
-                [
-                    "phone"=> "{$phoneId}",
-                    "message"=>     
-                        "Últimos números livres".PHP_EOL.
-                        "{$lastNumbersString}"
-                ]
-            );
+    } else if($flatNotify > 0){
+
+        if($remaining <= $flatNotify){
+            $notify = true;
         }
+
     }
 
+    if($notify === true){
+        $reqResLastNumbers = sendZAPIReq(
+            [
+                "phone"=> "{$phoneId}",
+                "message"=>     
+                    "Últimos números livres".PHP_EOL.
+                    "{$lastNumbersString}"
+            ]
+        );
+    }
 }
-
 
 
 http_response_code(200);
