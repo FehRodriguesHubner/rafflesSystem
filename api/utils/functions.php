@@ -27,10 +27,10 @@ function capturaSequencial($type,$typeId,$id){
 }
 
 
-function sendZAPIReq($payload,$encode = false)
+function sendZAPIReq($payload,$encode = true)
 {
     global $messageEndpoint, $clientToken;
-    return true;
+    
     if($messageEndpoint == null){
         return false;
     }
