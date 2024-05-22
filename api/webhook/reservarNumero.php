@@ -223,7 +223,7 @@ if(!$result = mysqli_query($db,$sql)){
 }
 if(mysqli_num_rows($result) < 1) die(json_encode(['ref' => 15]));
 while($row = mysqli_fetch_assoc($result)){
-    $awardsString .= PHP_EOL ."*{$row['referenceCode']}º Prêmio:*". PHP_EOL ." {$row['description']}*" . PHP_EOL;
+    $awardsString .= PHP_EOL ."*{$row['referenceCode']}º Prêmio:*". PHP_EOL ." {$row['description']}" . PHP_EOL;
 }
 
 /// PESQUISA PARTICIPANTES
@@ -247,9 +247,9 @@ for( $index = 1; $index <= $numbers; $index++){
     if(isset($jsonParticipants[strval($index)])){
         $participant = $jsonParticipants[strval($index)];
         $participantName = explode(' ',$participant['name'])[0];
-        $participantPhone = substr($participant['phoneId'],0,-4);
+        $participantPhone = substr($participant['phoneId'],-4);
 
-        $participantsString .= "{$participantName} - {$participantPhone}_... ";
+        $participantsString .= "{$participantName} - ..._{$participantPhone}";
     }else{
         $lastNumbersString .= $drawnNumber . PHP_EOL ;
     }
