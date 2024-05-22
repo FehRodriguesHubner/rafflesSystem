@@ -61,7 +61,7 @@ if($adminPhones != null){
 
 /// TESTA MENSAGEM INPUTADA (TEXTOMATRIZ)
 if(
-    explode(' ',$inputMessage) <= 3 &&
+    count(explode(' ',$inputMessage)) <= 3 &&
     !is_numeric($inputMessage)
 ){
     // enviando retorno de mensagem incorreta
