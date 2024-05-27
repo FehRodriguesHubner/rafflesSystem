@@ -162,7 +162,7 @@ require_once __DIR__ . '/../../config/init-config.php';
     <script src="<?php echo $cdn ?>libs/jquery-mask/jquery.mask.min.js"></script>
     <!-- page script -->
     <script src="<?php echo $cdn ?>/js/cms/cms.js"></script>
-    <script src="<?php echo $url; ?>/js/sorteios/edit.js"></script>
+    <script src="<?php echo $url; ?>/js/sorteios/edit.js?v=1.1"></script>
 
 </body>
 

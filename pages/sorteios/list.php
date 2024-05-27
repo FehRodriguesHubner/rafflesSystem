@@ -133,7 +133,7 @@ require_once __DIR__ . '/../../config/init-config.php';
     <script src="<?php echo $cdn; ?>libs/jquery-datatable/js/buttons.print.min.js"></script>
     <!-- page script -->
     <script src="<?php echo $cdn ?>/js/cms/cms.js"></script>
-    <script src="<?php echo $url; ?>/js/sorteios/list.js"></script>
+    <script src="<?php echo $url; ?>/js/sorteios/list.js?v=1.1"></script>
 
 </body>
 
