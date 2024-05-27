@@ -1,7 +1,7 @@
 <?php 
 
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+//error_reporting(E_ALL);
+//ini_set('display_errors', 1);
 
 require_once(__DIR__ . '/../../config/session-config.php');
 require_once(__DIR__ . '/../../config/https-redirect.php');
@@ -29,6 +29,15 @@ $price = str_replace(',','.',$price);
 if ($idGroup == null || $status == null || $numbers == null || $price == null) {
     http_response_code(400);
     die();
+}
+
+if($raffleDate != null){
+    $raffleDate = explode('/',$raffleDate);
+    if(count($raffleDate) < 3){
+        http_response_code(400);
+        die();
+    } 
+    $raffleDate = "{$raffleDate[2]}/{$raffleDate[1]}/{$raffleDate[0]}";
 }
 
 $getRefCode = capturaSequencial('raffles','idGroup',mysqli_real_escape_string($db,$idGroup));

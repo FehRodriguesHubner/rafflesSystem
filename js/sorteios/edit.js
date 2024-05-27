@@ -224,6 +224,15 @@ async function renderDefaultForm(){
             case 'price':
                 $(`#input-${campo.key}`).val(parseFloat(result[campo.key]).toLocaleString('pt-br',{minimumFractionDigits: 2}));
                 break;
+            case 'raffleDate':
+                let raffleDate = result[campo.key];
+                if(raffleDate != null){
+                    raffleDate = raffleDate.split('-');
+                    raffleDate = `${raffleDate[2]}/${raffleDate[1]}/${raffleDate[0]}`;
+                }
+                $(`#input-${campo.key}`).val(raffleDate);
+
+                break;
             case 'resultLink':
             case 'buyLimit':
             case 'percentageNotify':

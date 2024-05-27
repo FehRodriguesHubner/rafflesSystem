@@ -511,6 +511,18 @@ async function renderDefault(){
                             field = `R$ ${  parseFloat(row[campo.key]).toLocaleString('pt-br',{minimumFractionDigits: 2})}`;
                         }
                             break;
+                    case 'raffleDate':
+                        let raffleDate = row[campo.key];
+
+                        if(raffleDate != null){
+                            raffleDate = raffleDate.split('-');
+                            raffleDate = `${raffleDate[2]}/${raffleDate[1]}/${raffleDate[0]}`;
+                        }else{
+                            raffleDate = '--';
+                        }
+                        field = raffleDate;
+
+                            break;
                     case 'referenceCode':
                         if(row[campo.key] != null ){
                             let referenceCode = row[campo.key];

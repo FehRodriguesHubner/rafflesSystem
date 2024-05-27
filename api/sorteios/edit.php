@@ -1,6 +1,6 @@
 <?php 
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+//error_reporting(E_ALL);
+//ini_set('display_errors', 1);
 require_once(__DIR__ . '/../../config/session-config.php');
 require_once(__DIR__ . '/../../config/https-redirect.php');
 if (empty($_SESSION['idUser'])) {http_response_code(401);die();}
@@ -17,6 +17,15 @@ $instructions = $json['instructions'];
 $resultLink = $json['resultLink'];
 $percentageNotify = $json['percentageNotify'];
 $flatNotify = $json['flatNotify'];
+
+if($raffleDate != null){
+    $raffleDate = explode('/',$raffleDate);
+    if(count($raffleDate) < 3){
+        http_response_code(400);
+        die();
+    } 
+    $raffleDate = "{$raffleDate[2]}/{$raffleDate[1]}/{$raffleDate[0]}";
+}
 
 
 if ($idRaffle == null || $status == null) {
