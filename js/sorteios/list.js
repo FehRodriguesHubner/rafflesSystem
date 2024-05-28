@@ -378,16 +378,6 @@ $(function(){
                     &nbsp
                     Download PDF `,
                     className: 'btn-warning fw-bold'
-                },
-                {
-                    text: 'Custom Action', // Texto do botão
-                    className: 'btn-custom fw-bold', // Classe CSS personalizada
-                    action: function (e, dt, node, config) {
-                        // Função personalizada a ser executada
-                        alert('Botão customizado clicado!');
-                        // Adicione sua lógica personalizada aqui
-                        console.log('Custom action executed.');
-                    }
                 }
             ],
             columnDefs: [
@@ -454,6 +444,63 @@ $(function(){
         return;
 
     });
+
+    const btnRegisterParticipant = $('#btnRegisterParticipant');
+    const btnSubmitParticipant = $('#btnSubmitParticipant');
+    const wrapperRegisterParticipant = $('#wrapperRegisterParticipant');
+
+    btnRegisterParticipant.on('click', function(){
+        wrapperRegisterParticipant.fadeIn();
+    })
+
+    btnSubmitParticipant.on('click', async function(){
+
+        const drawnNumber = $('#drawnNumber').val();
+        const phoneId = $('#phoneId').val();
+        const name = $('#name').val();
+
+        if(drawnNumber == '' || phoneId == '' || name == ''){
+            dispatchPopup('warning','Atenção','Preencha todos os campos antes de prosseguir');
+            return;
+        }
+        popupLoading();
+
+        let fetchResponse = await fetch(`${apiUrl}/${pageSlug}/popup.php`, {
+            method: 'PUT',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body:JSON.stringify({
+                drawnNumber,
+                phoneId,
+                name
+            })
+        });
+
+        let jsonResponse;
+        try{
+            jsonResponse = await fetchResponse.json();
+        }catch(ex){
+            dispatchPopup('error','Ops! ocorreu um erro.','Não foi possível verificar o retorno da sua solicitação. Por favor, tente novamente mais tarde.');
+            console.log(ex);
+            return false;
+        }
+
+        if(fetchResponse.status != 200){
+            dispatchPopup('error','Ops! ocorreu um erro.',(jsonResponse.message || 'Não foi possível ao verificar o resultado de sua ação. Por favor, tente novamente mais tarde.'));
+            return false;
+
+        }
+
+        dispatchPopup('success','Pronto!','Cadastro realizado com sucesso.').then(function(){
+            renderDefault();
+        });
+
+
+    })
+
+    maskInputs();
 
 });
 

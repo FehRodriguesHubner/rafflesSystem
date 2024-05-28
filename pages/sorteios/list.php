@@ -92,6 +92,16 @@ require_once __DIR__ . '/../../config/init-config.php';
                 </div>
                 <div class="modal-body">
                     <p>Total de participantes: <span id="countParticipants"></span></p>
+
+                    <button id="btnRegisterParticipant" class="btn btn-secondary mb-3"><i class="fa fa-user"></i> &nbsp; Cadastrar Participante</button>
+                    <div id="wrapperRegisterParticipant" style="display:none">
+                        <div class="d-flex gap-3 mb-3">
+                            <input type="text" id="drawnNumber" data-mask="number" class="input-default" placeholder="Número">
+                            <input type="text" id="phoneId" data-mask="phone" class="input-default" placeholder="Telefone Ex:. 555199999999">
+                            <input type="text" id="name" class="input-default" placeholder="Nome">
+                            <button id="btnSubmitParticipant" class="btn-primary btn">Cadastrar</button>
+                        </div>
+                    </div>
                     <div id="participantsWrapper"></div>
                 </div>
                 <div class="modal-footer">
@@ -131,6 +141,7 @@ require_once __DIR__ . '/../../config/init-config.php';
     <script src="<?php echo $cdn; ?>libs/jquery-datatable/extensions/export/vfs_fonts.js"></script>
     <script src="<?php echo $cdn; ?>libs/jquery-datatable/js/buttons.html5.min.js"></script>
     <script src="<?php echo $cdn; ?>libs/jquery-datatable/js/buttons.print.min.js"></script>
+    <script src="<?php echo $cdn ?>libs/jquery-mask/jquery.mask.min.js"></script>
     <!-- page script -->
     <script src="<?php echo $cdn ?>/js/cms/cms.js"></script>
     <script src="<?php echo $url; ?>/js/sorteios/list.js<?php echo $jsVersion;?>"></script>
