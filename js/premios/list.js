@@ -282,7 +282,7 @@ async function renderDefault(){
                     extend: 'pdfHtml5',
                     orientation: 'landscape',
                     pageSize: 'a3',
-                    text: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M3.5 10a.5.5 0 0 1-.5-.5v-8a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 0 0 1h2A1.5 1.5 0 0 0 14 9.5v-8A1.5 1.5 0 0 0 12.5 0h-9A1.5 1.5 0 0 0 2 1.5v8A1.5 1.5 0 0 0 3.5 11h2a.5.5 0 0 0 0-1h-2z"/><path fill-rule="evenodd" d="M7.646 15.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 14.293V5.5a.5.5 0 0 0-1 0v8.793l-2.146-2.147a.5.5 0 0 0-.708.708l3 3z"/></svg>
+                    text: `<i class="fa fa-download"></i>
                     &nbsp
                     Download PDF `,
                     className: 'btn-warning fw-bold'
@@ -317,30 +317,43 @@ async function renderDefault(){
             ).then(async (result) => {
                 if (result.isConfirmed) {
                     // REQUISIÇÃO
-                    popupLoading();
+                    dispatchPopup('warning','Confirmar sorteio',null,
+                        {
+                            html:`Deseja mesmo sortear o número <b>${result.value}</b> para este prêmio?`,
+                            showCancelButton:true,
+                            cancelButtonText:'Cancelar'
+                        }
+                    ).then(
+                        async function(res){
+                            if(res.isConfirmed){
+                                popupLoading();
 
-                    let fetchResponse = await fetch(`${apiUrl}/${pageSlug}/popup.php`, {
-                        method: 'PUT',
-                        headers: {
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json',
-                        },
-                        body:JSON.stringify({
-                            id:id,
-                            value:result.value
-                        })
-                    });
+                                let fetchResponse = await fetch(`${apiUrl}/${pageSlug}/popup.php`, {
+                                    method: 'PUT',
+                                    headers: {
+                                        'Accept': 'application/json',
+                                        'Content-Type': 'application/json',
+                                    },
+                                    body:JSON.stringify({
+                                        id:id,
+                                        value:result.value
+                                    })
+                                });
+            
+                                if(fetchResponse.status != 200){
+                                    dispatchPopup('error','Ops! ocorreu um erro.','Não foi possível ao verificar o resultado de sua ação. Por favor, tente novamente mais tarde.');
+            
+                                    return false;
+            
+                                }
+            
+                                dispatchPopup('success','Pronto!','Atualização realizada com sucesso.').then(function(){
+                                    renderDefault();
+                                });
+                            }
+                        }
+                    )
 
-                    if(fetchResponse.status != 200){
-                        dispatchPopup('error','Ops! ocorreu um erro.','Não foi possível ao verificar o resultado de sua ação. Por favor, tente novamente mais tarde.');
-
-                        return false;
-
-                    }
-
-                    dispatchPopup('success','Pronto!','Atualização realizada com sucesso.').then(function(){
-                        renderDefault();
-                    });
                 }
             });
 
