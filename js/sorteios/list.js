@@ -329,9 +329,9 @@ $(function(){
                         }
 
                         break;
-                    case 'referenceCode':
+                    case 'drawnNumber':
                         sortValue = parseInt(row[campo.key]);
-                        field = `${row[campo.key]}`;
+                        field = `${row[campo.key]} (${sortValue})`;
                         break;
                     default:
                         if(row[campo.key] != null ){
@@ -341,7 +341,7 @@ $(function(){
                         break;
                 }
 
-                sortValue = sortValue == null ? '' : `data-sort="${sortValue}"`;
+                sortValue = sortValue == null ? '' : `data-order="${sortValue}"`;
 
                 let strField = `
                     <td ${sortValue}>
@@ -377,6 +377,12 @@ $(function(){
                     &nbsp
                     Download PDF `,
                     className: 'btn-warning fw-bold'
+                }
+            ],
+            columnDefs: [
+                {
+                    targets: 0, // Define a primeira coluna (index 0)
+                    type: 'num' // Define o tipo como numérico
                 }
             ]
         });
