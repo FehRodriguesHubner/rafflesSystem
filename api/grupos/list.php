@@ -31,7 +31,7 @@ WHERE stores.idStore = '{$idStore}';";
 
 $result = mysqli_query($db,$sql);
 $row = mysqli_fetch_assoc($result);
-$tree = "{$row['cGroupLabel']} - {$row['label']} - Grupos";
+$tree = "{$row['cGroupLabel']} / {$row['label']} / Grupos";
 //////////////
 
 die(json_encode([

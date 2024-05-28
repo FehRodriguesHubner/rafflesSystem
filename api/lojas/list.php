@@ -27,7 +27,7 @@ FROM cGroups
 WHERE idCGroup = '{$idCGroup}';";
 $result = mysqli_query($db,$sql);
 $row = mysqli_fetch_assoc($result);
-$tree = "{$row['label']} - Lojas";
+$tree = "{$row['label']} / Lojas";
 //////////////
 
 die(json_encode([

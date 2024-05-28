@@ -53,7 +53,7 @@ if($botStatus != 1 || $statusGroup != 1) die(json_encode(['ref' => 3]));
 /// VERIFICA SE É UM ADMIN
 if($adminPhones != null){
     $adminPhones = explode(',',$adminPhones);
-    if(in_array($phoneId,$adminPhones)) die(json_encode(['ref' => 4]));
+    if(in_array($participantPhoneId,$adminPhones)) die(json_encode(['ref' => 4]));
 }
 
 ///
@@ -101,7 +101,7 @@ $row = mysqli_fetch_assoc($result);
 $idRaffle = $row['idRaffle'];
 $numbers = intval($row['numbers']);
 $refCodeRaffle = intval($row['referenceCode']);
-$instructionsRaffle = intval($row['instructions']);
+$instructionsRaffle = $row['instructions'];
 $percentageNotify = intval($row['percentageNotify']);
 $flatNotify = intval($row['flatNotify']);
 $buyLimit = intval($row['buyLimit']);
@@ -223,7 +223,7 @@ if(!$result = mysqli_query($db,$sql)){
 }
 if(mysqli_num_rows($result) < 1) die(json_encode(['ref' => 15]));
 while($row = mysqli_fetch_assoc($result)){
-    $awardsString .= PHP_EOL ."*{$row['referenceCode']}º Prêmio:*". PHP_EOL ." {$row['description']}" . PHP_EOL;
+    $awardsString .= PHP_EOL ."*{$row['referenceCode']}º Prêmio:*". PHP_EOL ."{$row['description']}" . PHP_EOL;
 }
 
 /// PESQUISA PARTICIPANTES
@@ -309,7 +309,7 @@ $reqResList = sendZAPIReq(
     [
         "phone" => "{$phoneId}",
         "message"=> "{$labelGroup}".PHP_EOL.
-        "{$referenceRaffle}".PHP_EOL.
+        "{$referenceRaffle}".PHP_EOL.PHP_EOL.
         "🔥  *VALOR: R$ {$priceBRL} por número.*".PHP_EOL.
         "{$awardsString}".PHP_EOL.
         "{$instructions}".PHP_EOL.

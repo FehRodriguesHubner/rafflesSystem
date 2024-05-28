@@ -39,7 +39,7 @@ WHERE groups.idGroup = '{$idGroup}';";
 
 $result = mysqli_query($db,$sql);
 $row = mysqli_fetch_assoc($result);
-$tree = "{$row['cGroupLabel']} - {$row['storeLabel']} - {$row['label']} - Sorteios";
+$tree = "{$row['cGroupLabel']} / {$row['storeLabel']} / {$row['label']} / Sorteios";
 
 $cGroupRef = $row['cGroupRef'];
 $storeRef = $row['storeRef'];

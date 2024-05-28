@@ -36,7 +36,7 @@ WHERE raffles.idRaffle = '{$idRaffle}';";
 
 $result = mysqli_query($db,$sql);
 $row = mysqli_fetch_assoc($result);
-$tree = "{$row['cGroupLabel']} - {$row['storeLabel']} - {$row['groupLabel']} - S{$row['label']} - Prêmios";
+$tree = "{$row['cGroupLabel']} / {$row['storeLabel']} / {$row['groupLabel']} / S{$row['label']} / Prêmios";
 //////////////
 
 die(json_encode([

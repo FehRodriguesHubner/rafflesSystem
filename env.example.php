@@ -17,3 +17,4 @@ $db_host = "localhost"; // Host do servidor MySQL
 $db_usuario = "root"; // Nome de usuário do MySQL
 $db_senha = "admin"; // Senha do MySQL
 $db_banco = "wpp_painel"; // Nome do banco de dados
+$jsVersion = "?v=1.2";
