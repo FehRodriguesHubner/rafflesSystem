@@ -80,7 +80,7 @@ function sendZAPIReq($payload,$encode = true)
     }
 }
 
-function sendReq($endpoint,$payload, $method = "POST")
+function sendReq($endpoint,$payload, $method = "POST", $timeout = 10)
 {
 
     $url = $endpoint;
@@ -93,6 +93,7 @@ function sendReq($endpoint,$payload, $method = "POST")
     curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
     curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_TIMEOUT_MS, ($timeout * 1000));
     curl_setopt($ch, CURLOPT_HTTPHEADER, array(
         "Content-Type: application/json"
     ));
@@ -100,7 +101,12 @@ function sendReq($endpoint,$payload, $method = "POST")
     $response = curl_exec($ch);
 
     if ($response === false) {
-        echo 'cURL Error: ' . curl_error($ch);
+        return [
+            'status' => 200,
+            'response' => [
+                'message' => "Confira a reserva na listagem de participantes"
+            ]
+        ];
     }
 
     

@@ -4,6 +4,9 @@
 //error_reporting(E_ALL);
 //ini_set('display_errors', 1);
 
+set_time_limit(240); // (4 minutos)
+ini_set('max_execution_time', 240); //(4 minutos)
+
 require_once(__DIR__ . '/../../config/https-redirect.php');
 require_once(__DIR__ . '/../db/db-config.php');
 require_once(__DIR__ . '/../utils/functions.php');
@@ -65,6 +68,7 @@ if(
     !is_numeric($inputMessage)
 ){
     // enviando retorno de mensagem incorreta
+    sleep(rand(3,8));
     $reqRes = sendZAPIReq(
         [
             "phone" => "{$phoneId}",
@@ -113,6 +117,7 @@ $priceBRL = number_format($price, 2, ',', '.');
 /// VERIFICA SE NÚMERO ESTÁ FORA DO RANGE
 if($chosenNumber > $numbers || $chosenNumber <= 0 ){
     // enviando retorno de mensagem incorreta
+    sleep(rand(3,8));
     $reqRes = sendZAPIReq(
         [
             "phone" => "{$phoneId}",
@@ -134,7 +139,7 @@ if(!$result = mysqli_query($db,$sql)){
     die(json_encode(['ref' => 10, 'debug' => mysqli_error($db)]));
 }
 if(mysqli_num_rows($result) > 0){
-
+    sleep(rand(3,8));
     $reqRes = sendZAPIReq(
         [
             "phone" => "{$phoneId}",
@@ -160,6 +165,7 @@ if($buyLimit > 0){
     $row = mysqli_fetch_assoc($result);
     $participantNumbers = intval($row['num']);
     if($participantNumbers >= $buyLimit){
+        sleep(rand(3,8));
         $reqRes = sendZAPIReq(
             [
                 "phone"=> "{$phoneId}",
@@ -205,6 +211,7 @@ if ($stmt) {
 }
 
 /// NOTIFICA NÚMERO RESERVADO
+sleep(rand(3,12));
 $reqResReservado = sendZAPIReq(
     [
         "phone" => "{$phoneId}",
@@ -304,30 +311,10 @@ PIX  para ficar fácil de copiar⤵️
 
 {$pixKey}" : '';
 
-/// NOTIFICA NOVA LISTA
-$reqResList = sendZAPIReq(
-    [
-        "phone" => "{$phoneId}",
-        "message"=> "{$labelGroup}".PHP_EOL.
-        "{$referenceRaffle}".PHP_EOL.PHP_EOL.
-        "🔥  *VALOR: R$ {$priceBRL} por número.*".PHP_EOL.
-        "{$awardsString}".PHP_EOL.
-        "{$instructions}".PHP_EOL.
-        "_*REGRAS NA DESCRIÇÃO DO GRUPO*_".PHP_EOL.
-        "{$participantsString}".PHP_EOL.
-        "{$footerString}"
-    ]
-);
-
 /// DESLIGA BOT SE NUMEROS ESGOTARAM
+$outOfNumbers = false;
 if(count($jsonParticipants) >= $numbers ){
-    $reqRes = sendZAPIReq(
-        [
-            "phone"=> "{$phoneId}",
-            "message"=>     "Números Esgotados".PHP_EOL.
-                            "Conferindo aqui os pagamentos e já vamos para o sorteio."
-        ]
-    );
+    $outOfNumbers = true;
 
     // notifica admins
     if($adminPhones != null){
@@ -359,60 +346,148 @@ if(count($jsonParticipants) >= $numbers ){
         die(json_encode(['ref' => 19, 'debug' => mysqli_error($db)]));
     }
 
-    http_response_code(200);
-    die();
-
-}
-
-// Calcular a quantidade de números restantes
-$sold = count($jsonParticipants);
-$remaining = $numbers - $sold;
-
-if($remaining == 1){
-    $reqResLastNumbers = sendZAPIReq(
-        [
-            "phone" => "{$phoneId}",
-            "message" =>    "*Último número livre*".PHP_EOL.
-                            "{$lastNumbersString}"
-        ]
-    );
-
-} else
-
-/// NOTIFICA NUMEROS RESTANTES
-if($flatNotify > 0 || $percentageNotify > 0){
-    // vendidos
-    if($percentageNotify > 0 ){
-
-        // Calcular a porcentagem de números restantes
-        $remainingPercentage = ($remaining / $numbers) * 100;
-
-        if ($remainingPercentage <= $percentageNotify) {
-            $notify = true;
-        } else {
-            $notify = false;
-        }
-
-    } else if($flatNotify > 0){
-
-        if($remaining <= $flatNotify){
-            $notify = true;
-        }
-
-    }
-
-    if($notify === true){
+} else {
+    // Calcular a quantidade de números restantes
+    $sold = count($jsonParticipants);
+    $remaining = $numbers - $sold;
+    
+    if($remaining == 1){
         $reqResLastNumbers = sendZAPIReq(
             [
-                "phone"=> "{$phoneId}",
-                "message"=>     
-                    "Últimos números livres".PHP_EOL.
-                    "{$lastNumbersString}"
+                "phone" => "{$phoneId}",
+                "message" =>    "*Último número livre*".PHP_EOL.
+                                "{$lastNumbersString}"
             ]
         );
+    
+    } else
+    
+    /// NOTIFICA NUMEROS RESTANTES
+    if($flatNotify > 0 || $percentageNotify > 0){
+        // vendidos
+        if($percentageNotify > 0 ){
+    
+            // Calcular a porcentagem de números restantes
+            $remainingPercentage = ($remaining / $numbers) * 100;
+    
+            if ($remainingPercentage <= $percentageNotify) {
+                $notify = true;
+            } else {
+                $notify = false;
+            }
+    
+        } else if($flatNotify > 0){
+    
+            if($remaining <= $flatNotify){
+                $notify = true;
+            }
+    
+        }
+    
+        if($notify === true){
+            $reqResLastNumbers = sendZAPIReq(
+                [
+                    "phone"=> "{$phoneId}",
+                    "message"=>     
+                        "Últimos números livres".PHP_EOL.
+                        "{$lastNumbersString}"
+                ]
+            );
+        }
     }
 }
 
+///////////////// ENVIANDO LISTA /////////////////
+if($outOfNumbers == false){
+    $sql = "SELECT queueUpdateList FROM groups WHERE idGroup = '{$idGroup}';";
+    if(!$result = mysqli_query($db,$sql)){
+        http_response_code(500);
+        die(json_encode(['ref' => 20, 'debug' => mysqli_error($db)]));
+    }
+    $row = mysqli_fetch_assoc($result);
+    $queueUpdateList = $row['queueUpdateList'];
+    
+    $currentTimestamp = strtotime(date('Y-m-d H:i:s'));
+    if($queueUpdateList != null){
+        $timestampUpdate = strtotime($queueUpdateList);
+        if($timestampUpdate >= $currentTimestamp){
+            http_response_code(200);
+            die(json_encode([
+                'ref' => 22, 
+                'desc' => 'Lista agendada',
+                'debug' => [
+                    '$timestampUpdate' => $timestampUpdate,
+                    '$currentTimestamp' => $currentTimestamp,
+                    '$queueUpdateList' => $queueUpdateList,
+                ]
+            ]));
+        }
+    }
+    
+    $sleepSeconds = rand(60,75);
+    $queueUpdateList = $currentTimestamp + $sleepSeconds;
+    $queueUpdateList = date('Y-m-d H:i:s',$queueUpdateList);
+    
+    $sql = "UPDATE groups SET queueUpdateList = '{$queueUpdateList}' WHERE idGroup = '{$idGroup}';";
+    if(!$result = mysqli_query($db,$sql)){
+        http_response_code(500);
+        die(json_encode(['ref' => 23, 'debug' => mysqli_error($db)]));
+    }
+    sleep($sleepSeconds);
+}
+
+/// PESQUISA PARTICIPANTES
+$jsonParticipants = [];
+$sql = "SELECT name, paid, drawnNumber, phoneId FROM participants WHERE idRaffle = '{$idRaffle}' ORDER BY drawnNumber ASC;";
+if(!$result = mysqli_query($db,$sql)){
+    http_response_code(500);
+    die(json_encode(['ref' => 24, 'debug' => mysqli_error($db)]));
+}
+
+while($row = mysqli_fetch_assoc($result)){
+    $jsonParticipants[strval($row['drawnNumber'])] = $row;
+}
+$participantsString = "";
+$lastNumbersString = "";
+for( $index = 1; $index <= $numbers; $index++){
+    $drawnNumber = $index < 10 ? "0{$index}" : $index;
+
+    $participantsString .= PHP_EOL ."{$drawnNumber} - ";
+
+    if(isset($jsonParticipants[strval($index)])){
+        $participant = $jsonParticipants[strval($index)];
+        $participantName = explode(' ',$participant['name'])[0];
+        $participantPhone = substr($participant['phoneId'],-4);
+
+        $participantsString .= "{$participantName} - ..._{$participantPhone}";
+    }else{
+        $lastNumbersString .= $drawnNumber . PHP_EOL ;
+    }
+}
+
+/// NOVA LISTA
+$jsonList = [
+    "phone" => "{$phoneId}",
+    "message"=> "{$labelGroup}".PHP_EOL.
+    "{$referenceRaffle}".PHP_EOL.PHP_EOL.
+    "🔥  *VALOR: R$ {$priceBRL} por número.*".PHP_EOL.
+    "{$awardsString}".PHP_EOL.
+    "{$instructions}".PHP_EOL.
+    "_*REGRAS NA DESCRIÇÃO DO GRUPO*_".PHP_EOL.
+    "{$participantsString}".PHP_EOL.
+    "{$footerString}"
+];
+$reqResList = sendZAPIReq($jsonList);
+
+if($outOfNumbers === true){
+    $reqRes = sendZAPIReq(
+        [
+            "phone"=> "{$phoneId}",
+            "message"=>     "Números Esgotados".PHP_EOL.
+                            "Conferindo aqui os pagamentos e já vamos para o sorteio."
+        ]
+    );
+}
 
 http_response_code(200);
 die(json_encode($reqResList, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));

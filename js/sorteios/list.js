@@ -512,7 +512,8 @@ $(function () {
             return false;
 
         }
-        
+        wrapperRegisterParticipant.fadeOut();
+
         defaultModal.hide();
         for(let element of arrayInputs){ element.val('')}
         dispatchPopup('success', 'Pronto!', 'Cadastro realizado com sucesso.').then(function () {

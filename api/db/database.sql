@@ -45,6 +45,7 @@ CREATE TABLE groups(
     adminPhones longtext,
     botStatus boolean not null,
     status boolean not null,
+    queueUpdateList datetime DEFAULT CURRENT_TIMESTAMP(),
     triggerMessage varchar(100),
     redirectLink text,
     createdAt datetime default CURRENT_TIMESTAMP(),
