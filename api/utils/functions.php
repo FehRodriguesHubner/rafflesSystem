@@ -79,3 +79,50 @@ function sendZAPIReq($payload,$encode = true)
         ];
     }
 }
+
+function sendReq($endpoint,$payload, $method = "POST")
+{
+
+    $url = $endpoint;
+    $data = $payload;
+
+    
+    $jsonData = json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    $ch = curl_init($url);
+    
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+        "Content-Type: application/json"
+    ));
+
+    $response = curl_exec($ch);
+
+    if ($response === false) {
+        echo 'cURL Error: ' . curl_error($ch);
+    }
+
+    
+
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+    curl_close($ch);
+    
+    $responseData = json_decode($response, true);
+
+    if ($responseData) {
+        return [
+            'status' => $httpCode,
+            'response' => $responseData
+        ];
+    } else {
+        return [
+            'status' => $httpCode,
+            'url' => $url,
+            'response' => [
+                'message' => "Ocorreu um erro ao verificar o retorno da solicitação"
+            ]
+        ];
+    }
+}

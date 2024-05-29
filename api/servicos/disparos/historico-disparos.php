@@ -7,9 +7,9 @@ require_once(__DIR__ . '/../../db/db-config.php');
 require_once(__DIR__ . '/../../utils/functions.php');
 
 /*
-ini_set('display_errors', 1);
+//ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+//error_reporting(E_ALL);
 */
 $json = file_get_contents('php://input');
 $json = json_decode($json,true);

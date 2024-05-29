@@ -2,17 +2,17 @@ const pageSlug = 'sorteios';
 const pageName = 'Sorteios';
 const campos = [
     //{label:'ID', key: 'idCGroup' },
-    {label:'Ref.', key: 'referenceCode'},
-    {label:'Status do Sorteio', key: 'status'},
-    {label:'Preço Unitário', key: 'price'},
-    {label:'Qtd. Números', key: 'numbers'},
-    {label:'Data Sorteio', key: 'raffleDate'},
+    { label: 'Ref.', key: 'referenceCode' },
+    { label: 'Status do Sorteio', key: 'status' },
+    { label: 'Preço Unitário', key: 'price' },
+    { label: 'Qtd. Números', key: 'numbers' },
+    { label: 'Data Sorteio', key: 'raffleDate' },
     //{label:'Instruções de Pagamento', key: 'instructions'},
     //{label:'Limite por Pessoa', key: 'buyLimit'},
     //{label:'Porcentagem Restante (notificação) ', key: 'percentageNotify'},
     //{label:'Número Restante (notificação) ', key: 'flatNotify'},
     //{label:'Link do Resultado', key: 'resultLink'},
-    {label:'Ações', key: 'actions'},
+    { label: 'Ações', key: 'actions' },
 ];
 
 window.addEventListener('DOMContentLoaded', async function () {
@@ -36,7 +36,7 @@ function fetchDefault(id) {
 
         let fetchJsonResponse;
 
-        if (fetchResponse.status == 401) {window.location.href = baseAdminUrl;return;}
+        if (fetchResponse.status == 401) { window.location.href = baseAdminUrl; return; }
         if (fetchResponse.status != 200) {
             dispatchPopup(
                 'error',
@@ -76,7 +76,7 @@ function fetchModalDefault(id) {
 
         let fetchJsonResponse;
 
-        if (fetchResponse.status == 401) {window.location.href = baseAdminUrl;return;}
+        if (fetchResponse.status == 401) { window.location.href = baseAdminUrl; return; }
         if (fetchResponse.status != 200) {
             dispatchPopup(
                 'error',
@@ -116,7 +116,7 @@ function fetchTogglePaid(id) {
 
         let fetchJsonResponse;
 
-        if (fetchResponse.status == 401) {window.location.href = baseAdminUrl;return;}
+        if (fetchResponse.status == 401) { window.location.href = baseAdminUrl; return; }
         if (fetchResponse.status != 200) {
             dispatchPopup(
                 'error',
@@ -156,7 +156,7 @@ function fetchDefaultDelete(id) {
 
         let fetchJsonResponse;
 
-        if (fetchResponse.status == 401) {window.location.href = baseAdminUrl;return;}
+        if (fetchResponse.status == 401) { window.location.href = baseAdminUrl; return; }
         if (fetchResponse.status == 403) {
             dispatchPopup(
                 'warning',
@@ -200,38 +200,39 @@ function fetchDefaultDelete(id) {
     });
 }
 
-$(function(){
-    $(document).on('click','[data-action="delete"]', async function(){
+$(function () {
+    $(document).on('click', '[data-action="delete"]', async function () {
         let id = $(this).attr('data-id');
 
         popupLoading()
 
-        try{
+        try {
             await fetchDefaultDelete(id);
-        }catch(e){
-            console.log('delete falhou:',id)
+        } catch (e) {
+            console.log('delete falhou:', id)
             return;
         }
 
         renderDefault();
 
     });
-
+    var selectedModalId = null;
     const defaultModal = new bootstrap.Modal('#modal-default', {
         keyboard: false
     });
 
-    $(document).on('click', '[data-modal="default"]', async function(e){
+    $(document).on('click', '[data-modal="default"]', async function (e) {
         e.preventDefault()
         popupLoading();
 
         let id = $(this).attr('data-id');
+        selectedModalId = id;
         const dataTablesWrapper = document.querySelector('#participantsWrapper');
         var result;
 
-        try{
+        try {
             result = await fetchModalDefault(id);
-        }catch(e){
+        } catch (e) {
             console.log(e);
             return;
         }
@@ -242,9 +243,9 @@ $(function(){
         let data = result.results;
 
         $('#countParticipants').text(data.length);
-        
-        if( data == null || data.length < 1){
-    
+
+        if (data == null || data.length < 1) {
+
             dataTablesWrapper.innerHTML = /*html*/`
             <div class="d-flex flex-column">
                 <p class="message-on-container mb-4">Nenhum registro até o momento.</p>     
@@ -254,12 +255,12 @@ $(function(){
             Swal.close();
             defaultModal.show();
             return false;
-    
+
         }
-    
-        function montaHTMLTabela(campos){
+
+        function montaHTMLTabela(campos) {
             var strCampos = ``;
-            for(let campo of campos){
+            for (let campo of campos) {
                 let strCampo = `
                     <th> ${campo.label} </th>
                 `;
@@ -280,33 +281,33 @@ $(function(){
         }
 
         const campos = [
-            {label:'Número',  key: 'drawnNumber'},
-            {label:'Tel.',    key: 'phoneId'},
-            {label:'Nome',    key: 'name'},
-            {label:'Reserva', key: 'createdAt'},
-            {label:'Pago',    key: 'paid'},
+            { label: 'Número', key: 'drawnNumber' },
+            { label: 'Tel.', key: 'phoneId' },
+            { label: 'Nome', key: 'name' },
+            { label: 'Reserva', key: 'createdAt' },
+            { label: 'Pago', key: 'paid' },
         ];
 
         montaHTMLTabela(campos);
-    
-        for(let index in data){
-    
+
+        for (let index in data) {
+
             let row = data[index];
             let strRow = '';
 
-            for(let campo of campos){
+            for (let campo of campos) {
                 let field = '--';
                 let sortValue = null;
                 // CUSTOM FIELDS //
-                switch(campo.key){
+                switch (campo.key) {
                     case 'createdAt':
-                        if(row[campo.key] != null ){
-                            sortValue =row[campo.key];
-                            field =  formatDateTime(row[campo.key]);
+                        if (row[campo.key] != null) {
+                            sortValue = row[campo.key];
+                            field = formatDateTime(row[campo.key]);
                         }
-                            break;
+                        break;
                     case 'paid':
-                        if(row[campo.key] == 1){
+                        if (row[campo.key] == 1) {
                             field = `
                             <div class="d-flex justify-content-end">     
                                 <a class="me-2">
@@ -316,7 +317,7 @@ $(function(){
                                 </a>       
                             </div>
                             `;
-                        }else{
+                        } else {
                             field = `
                             <div class="d-flex justify-content-end">     
                                 <a class="me-2">
@@ -331,10 +332,10 @@ $(function(){
                         break;
                     case 'drawnNumber':
                         sortValue = parseInt(row[campo.key]);
-                        field = `${row[campo.key]} (${sortValue})`;
+                        field = `${row[campo.key]}`;
                         break;
                     default:
-                        if(row[campo.key] != null ){
+                        if (row[campo.key] != null) {
                             field = row[campo.key];
                         }
 
@@ -357,14 +358,14 @@ $(function(){
                     ${strRow}
                 </tr>
             `);
-    
+
         }
 
-    
+
         $(dataTablesWrapper).find('table').DataTable({
             pageLength: 30, // Adiciona a paginação de 30 itens por página
             responsive: true,
-            scrollX:true,
+            scrollX: true,
             language: {
                 url: `${baseAdminUrl}/libs/jquery-datatable/locale/dataTables.pt_br.json`
             },
@@ -394,75 +395,93 @@ $(function(){
 
     });
 
-    $(document).on('click', '[data-toggle-paid]', async function(){
+    $(document).on('click', '[data-toggle-paid]', async function () {
         const button = $(this);
 
         const id = button.attr('data-id');
 
         button
-        .removeClass('btn-success')
-        .removeClass('btn-danger')
-        .addClass('btn-primary')
-        .html(`
+            .removeClass('btn-success')
+            .removeClass('btn-danger')
+            .addClass('btn-primary')
+            .html(`
             <span class="spinner-grow spinner-grow-sm" aria-hidden="true"></span>
             <span role="status">Carregando...</span>
         `)
-        .attr('disabled',true);
+            .attr('disabled', true);
 
-        try{
+        try {
             result = await fetchTogglePaid(id);
-        }catch(e){
+        } catch (e) {
             dispatchPopup(
                 'error',
                 'Ops!',
                 'Ocorreu um erro ao alterar o pagamento, as informações serão recarregadas',
-            ).then(function(){
+            ).then(function () {
                 renderDefault();
             })
             return;
         }
 
-        if(result.currentPaid == 1){
+        if (result.currentPaid == 1) {
             button
-            .removeClass('btn-primary')
-            .addClass('btn-danger')
-            .html(`
+                .removeClass('btn-primary')
+                .addClass('btn-danger')
+                .html(`
                 <i class="fa fa-dollar"></i> &nbsp; Desfazer
             `)
-            .removeAttr('disabled');
-    
-        }else{
+                .removeAttr('disabled');
+
+        } else {
             button
-            .removeClass('btn-primary')
-            .addClass('btn-success')
-            .html(`
+                .removeClass('btn-primary')
+                .addClass('btn-success')
+                .html(`
                 <i class="fa fa-dollar"></i> &nbsp; Confirmar
             `)
-            .removeAttr('disabled');
+                .removeAttr('disabled');
         }
 
         return;
 
     });
 
+    // CADASTRA PARTICIPANTE
+    $(document).on('focus','input', function(){
+        cleanInputError(this);
+    });
     const btnRegisterParticipant = $('#btnRegisterParticipant');
     const btnSubmitParticipant = $('#btnSubmitParticipant');
     const wrapperRegisterParticipant = $('#wrapperRegisterParticipant');
 
-    btnRegisterParticipant.on('click', function(){
+    btnRegisterParticipant.on('click', function () {
         wrapperRegisterParticipant.fadeIn();
     })
 
-    btnSubmitParticipant.on('click', async function(){
+    btnSubmitParticipant.on('click', async function () {
 
-        const drawnNumber = $('#drawnNumber').val();
-        const phoneId = $('#phoneId').val();
-        const name = $('#name').val();
-
-        if(drawnNumber == '' || phoneId == '' || name == ''){
-            dispatchPopup('warning','Atenção','Preencha todos os campos antes de prosseguir');
-            return;
+        const inputDrawnNumber = $('#input-drawnNumber');
+        const inputPhoneId = $('#input-phoneId');
+        const inputName = $('#input-name');
+        const arrayInputs = [inputDrawnNumber,inputPhoneId,inputName];
+        let erros = 0;
+        for(let element of arrayInputs){
+            const type = element.attr('data-type');
+            if(
+                (element.attr('data-optional') != null && element.val().trim() != '') ||
+                element.attr('data-optional') == null
+            ){
+                if (!inputValidation(element.val().trim(),type)) {
+                    triggerInputError(element, 'Verifique o valor informado!');
+                    erros++
+                }
+            }
         }
+        if (erros > 0) {
+            dispatchPopup('warning','Atenção', 'Verifique os campos destacados.');
+            return null;
+        }
+
         popupLoading();
 
         let fetchResponse = await fetch(`${apiUrl}/${pageSlug}/popup.php`, {
@@ -471,29 +490,32 @@ $(function(){
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
             },
-            body:JSON.stringify({
-                drawnNumber,
-                phoneId,
-                name
+            body: JSON.stringify({
+                id: selectedModalId,
+                drawnNumber:inputDrawnNumber.val(),
+                phoneId: inputPhoneId.val(),
+                name: inputName.val()
             })
         });
 
         let jsonResponse;
-        try{
+        try {
             jsonResponse = await fetchResponse.json();
-        }catch(ex){
-            dispatchPopup('error','Ops! ocorreu um erro.','Não foi possível verificar o retorno da sua solicitação. Por favor, tente novamente mais tarde.');
+        } catch (ex) {
+            dispatchPopup('error', 'Ops! ocorreu um erro.', 'Não foi possível verificar o retorno da sua solicitação. Por favor, tente novamente mais tarde.');
             console.log(ex);
             return false;
         }
 
-        if(fetchResponse.status != 200){
-            dispatchPopup('error','Ops! ocorreu um erro.',(jsonResponse.message || 'Não foi possível ao verificar o resultado de sua ação. Por favor, tente novamente mais tarde.'));
+        if (fetchResponse.status != 200) {
+            dispatchPopup('warning', 'Atenção', (jsonResponse.message || 'Não foi possível ao verificar o resultado de sua ação. Por favor, tente novamente mais tarde.'));
             return false;
 
         }
-
-        dispatchPopup('success','Pronto!','Cadastro realizado com sucesso.').then(function(){
+        
+        defaultModal.hide();
+        for(let element of arrayInputs){ element.val('')}
+        dispatchPopup('success', 'Pronto!', 'Cadastro realizado com sucesso.').then(function () {
             renderDefault();
         });
 
@@ -502,17 +524,18 @@ $(function(){
 
     maskInputs();
 
+
 });
 
-async function renderDefault(){
-    return new Promise(async function(res,rej){
+async function renderDefault() {
+    return new Promise(async function (res, rej) {
         const id = $('#get_id').val();
 
         const dataTablesWrapper = document.querySelector('#datatables-models');
         var result;
-        try{
+        try {
             result = await fetchDefault(id);
-        }catch(e){
+        } catch (e) {
             res(false);
             return;
         }
@@ -523,11 +546,11 @@ async function renderDefault(){
         dataTablesWrapper.innerHTML = '';
 
         let data = result.results;
-        
-        if( data == null || data.length < 1){
-    
+
+        if (data == null || data.length < 1) {
+
             dataTablesWrapper.classList.remove('card-profile', 'p-lg-4', 'p-md-3', 'p-2')
-    
+
             dataTablesWrapper.innerHTML = /*html*/`
             <div class="d-flex flex-column">
                 <p class="message-on-container mb-4">Nenhum registro até o momento.</p>     
@@ -536,14 +559,14 @@ async function renderDefault(){
             `;
             res(false);
             Swal.close();
-            
+
             return false;
-    
+
         }
-    
-        function montaHTMLTabela(campos){
+
+        function montaHTMLTabela(campos) {
             var strCampos = ``;
-            for(let campo of campos){
+            for (let campo of campos) {
                 let strCampo = `
                     <th> ${campo.label} </th>
                 `;
@@ -564,47 +587,47 @@ async function renderDefault(){
         }
 
         montaHTMLTabela(campos);
-    
-        for(let index in data){
-    
+
+        for (let index in data) {
+
             let row = data[index];
             let strRow = '';
 
-            for(let campo of campos){
+            for (let campo of campos) {
                 let field = '--';
 
                 // CUSTOM FIELDS //
-                switch(campo.key){
+                switch (campo.key) {
                     case 'price':
-                        if(row[campo.key] != null ){
-                          
-                            field = `R$ ${  parseFloat(row[campo.key]).toLocaleString('pt-br',{minimumFractionDigits: 2})}`;
+                        if (row[campo.key] != null) {
+
+                            field = `R$ ${parseFloat(row[campo.key]).toLocaleString('pt-br', { minimumFractionDigits: 2 })}`;
                         }
-                            break;
+                        break;
                     case 'raffleDate':
                         let raffleDate = row[campo.key];
 
-                        if(raffleDate != null){
+                        if (raffleDate != null) {
                             raffleDate = raffleDate.split('-');
                             raffleDate = `${raffleDate[2]}/${raffleDate[1]}/${raffleDate[0]}`;
-                        }else{
+                        } else {
                             raffleDate = '--';
                         }
                         field = raffleDate;
 
-                            break;
+                        break;
                     case 'referenceCode':
-                        if(row[campo.key] != null ){
+                        if (row[campo.key] != null) {
                             let referenceCode = row[campo.key];
-                            referenceCode = referenceCode < 10 ? '0'+referenceCode : referenceCode;
+                            referenceCode = referenceCode < 10 ? '0' + referenceCode : referenceCode;
                             field = `${result.reference}S${referenceCode}`;
                         }
-                            break;
+                        break;
                     case 'status':
-                        if(row[campo.key] != null ){
-                            field =  row[campo.key] == 1 ? '🟢 Ativo' : '🔴';
+                        if (row[campo.key] != null) {
+                            field = row[campo.key] == 1 ? '🟢 Ativo' : '🔴';
                         }
-                            break;
+                        break;
                     case 'actions':
                         field = `
                         <div class="d-flex justify-content-end">
@@ -634,7 +657,7 @@ async function renderDefault(){
 
                         break;
                     default:
-                        if(row[campo.key] != null ){
+                        if (row[campo.key] != null) {
                             field = row[campo.key];
                         }
 
@@ -656,13 +679,13 @@ async function renderDefault(){
                     ${strRow}
                 </tr>
             `);
-    
+
         }
-    
-    
+
+
         $('#datatables-models table').DataTable({
             responsive: true,
-            scrollX:true,
+            scrollX: true,
             language: {
                 url: `${baseAdminUrl}/libs/jquery-datatable/locale/dataTables.pt_br.json`
             },
@@ -679,7 +702,7 @@ async function renderDefault(){
                 }
             ]
         });
-    
+
 
         res(true);
 

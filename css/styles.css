@@ -251,6 +251,7 @@ body {
     border-radius: 4px !important;
     font-size: 14px;
     transition: 0.3s;
+    max-width: 100%;
 }
 
 .input-default.disabled{

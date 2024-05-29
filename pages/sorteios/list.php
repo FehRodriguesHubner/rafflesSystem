@@ -95,11 +95,51 @@ require_once __DIR__ . '/../../config/init-config.php';
 
                     <button id="btnRegisterParticipant" class="btn btn-secondary mb-3"><i class="fa fa-user"></i> &nbsp; Cadastrar Participante</button>
                     <div id="wrapperRegisterParticipant" style="display:none">
-                        <div class="d-flex gap-3 mb-3">
-                            <input type="text" id="drawnNumber" data-mask="number" class="input-default" placeholder="Número">
-                            <input type="text" id="phoneId" data-mask="phone" class="input-default" placeholder="Telefone Ex:. 555199999999">
-                            <input type="text" id="name" class="input-default" placeholder="Nome">
-                            <button id="btnSubmitParticipant" class="btn-primary btn">Cadastrar</button>
+                        <div class="row mb-3">
+                            <div class="col-md-6 col-lg-3">
+                                <div class="input-group mb-3 p-2">
+                                    <label for="input-drawnNumber">Número</label>
+                                    <div class="w-100">
+                                        <div class="input-container">
+                                            <input data-type="number" type="text" id="input-drawnNumber" data-mask="number" class="input-default" placeholder="Ex.: 12">
+                                            <small class="input-message"></small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-lg-3">
+                                <div class="input-group mb-3 p-2">
+                                    <label for="input-phoneId">Telefone</label>
+                                    <div class="w-100">
+                                        <div class="input-container">
+                                            <input data-type="phone" type="text" id="input-phoneId" data-mask="phone" class="input-default" placeholder="Ex.: (51) 9999-9999">
+                                            <small class="input-message"></small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-lg-3">
+                                <div class="input-group mb-3 p-2">
+                                    <label for="input-phoneId">Nome</label>
+                                    <div class="w-100">
+                                        <div class="input-container">
+                                        <input type="text" id="input-name" class="input-default" placeholder="Nome">
+                                            <small class="input-message"></small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12 col-lg-3">
+                                <div class="input-group mb-3 p-2">
+                                    <label for="">&nbsp;</label>
+                                    <div class="w-100">
+                                        <div class="input-container">
+                                            <button id="btnSubmitParticipant" class="btn-primary btn">Cadastrar</button>
+                                            <small class="input-message"></small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div id="participantsWrapper"></div>
