@@ -312,6 +312,14 @@ $outOfNumbers = false;
 if(count($jsonParticipants) >= $numbers ){
     $outOfNumbers = true;
 
+    $reqRes = sendZAPIReq(
+        [
+            "phone"=> "{$phoneId}",
+            "message"=>     "Números Esgotados".PHP_EOL.
+                            "Conferindo aqui os pagamentos e já vamos para o sorteio."
+        ]
+    );
+
     // notifica admins
     if($adminPhones != null){
         foreach($adminPhones as $adminPhone){
@@ -394,7 +402,7 @@ if(count($jsonParticipants) >= $numbers ){
 }
 
 ///////////////// ENVIANDO LISTA /////////////////
-if($outOfNumbers == false){
+
     $sql = "SELECT queueUpdateList FROM groups WHERE idGroup = '{$idGroup}';";
     if(!$result = mysqli_query($db,$sql)){
         http_response_code(500);
@@ -430,7 +438,7 @@ if($outOfNumbers == false){
         die(json_encode(['ref' => 23, 'debug' => mysqli_error($db)]));
     }
     sleep($sleepSeconds);
-}
+
 
 /// PESQUISA PARTICIPANTES
 $jsonParticipants = [];
@@ -475,16 +483,6 @@ $jsonList = [
     "{$footerString}"
 ];
 $reqResList = sendZAPIReq($jsonList);
-
-if($outOfNumbers === true){
-    $reqRes = sendZAPIReq(
-        [
-            "phone"=> "{$phoneId}",
-            "message"=>     "Números Esgotados".PHP_EOL.
-                            "Conferindo aqui os pagamentos e já vamos para o sorteio."
-        ]
-    );
-}
 
 http_response_code(200);
 die(json_encode($reqResList, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
