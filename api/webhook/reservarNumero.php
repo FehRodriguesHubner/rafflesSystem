@@ -305,11 +305,7 @@ $referenceRaffle = "{$refCodeGroup}L{$refCodeStore}G{$row['ref']}S" . $refCodeRa
 //////////////
 
 $footerString = $price > 0 ? "
-É bem simples Escolhe teu numero e faz o pix que te marcamos na LISTA
-
-PIX  para ficar fácil de copiar⤵️
-
-{$pixKey}" : '';
+É bem simples Escolhe teu numero e faz o pix que te marcamos na LISTA" : '';
 
 /// DESLIGA BOT SE NUMEROS ESGOTARAM
 $outOfNumbers = false;
@@ -473,6 +469,7 @@ $jsonList = [
     "🔥  *VALOR: R$ {$priceBRL} por número.*".PHP_EOL.
     "{$awardsString}".PHP_EOL.
     "{$instructions}".PHP_EOL.
+    PHP_EOL.
     "_*REGRAS NA DESCRIÇÃO DO GRUPO*_".PHP_EOL.
     "{$participantsString}".PHP_EOL.
     "{$footerString}"
