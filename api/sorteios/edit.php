@@ -74,6 +74,14 @@ if($status == 1){
         die('rafflesActive: '. $rafflesActive);
     }
 
+    // verifica se tem prêmios registrados
+    $sql = "SELECT idAward FROM awards WHERE idRaffle = '{$idRaffle}';";
+    $result = mysqli_query($db,$sql);
+    if(mysqli_num_rows($result) < 1){
+        http_response_code(200);
+        die('Sem prêmios');
+    }
+
     // verifica se já vendeu todos os números
     $sql = "SELECT count(*) as num FROM participants WHERE idRaffle = '{$idRaffle}';";
     $result = mysqli_query($db,$sql);
