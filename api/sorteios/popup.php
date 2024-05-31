@@ -28,6 +28,15 @@ if ($phoneId == null || $drawnNumber == null || $name == null) {
     die();
 }
 
+/// VALIDA NUMERO RESERVADO
+$sql = "SELECT idParticipant FROM participants WHERE idRaffle = '{$idRaffle}' and drawnNumber = {$drawnNumber};";
+$result = mysqli_query($db,$sql);
+if(mysqli_num_rows($result) > 0){
+    http_response_code(403);
+    die(json_encode(['message' => 'Número já reservado']));
+}
+
+/// VALIDA SORTEIO ATIVO
 $sql = "SELECT g.phoneId FROM raffles r INNER JOIN groups g USING(idGroup) WHERE g.status = 1 AND r.status = 1 AND g.botStatus = 1 AND r.idRaffle = '{$idRaffle}'";
 $result = mysqli_query($db,$sql);
 if(mysqli_num_rows($result) < 1){

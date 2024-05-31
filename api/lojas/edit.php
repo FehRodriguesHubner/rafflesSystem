@@ -12,6 +12,7 @@ $json = json_decode($json,true);
 $idStore = $json['id'];
 $label = $json['label'];
 $instructions = $json['instructions'];
+$footer = $json['footer'];
 $cnpj = $json['cnpj'];
 $razaoSocial = $json['razaoSocial'];
 $inscricaoEstadual = $json['inscricaoEstadual'];
@@ -24,7 +25,7 @@ $cep = $json['cep'];
 $nameContact = $json['nameContact'];
 $numberContact = $json['numberContact'];
 
-if ($idStore == null || $label == null) {
+if ($idStore == null || $label == null || $instructions == null) {
     http_response_code(400);
     die();
 }
@@ -32,6 +33,7 @@ if ($idStore == null || $label == null) {
 $sql = "UPDATE stores SET 
     label = ?,
     instructions = ?,
+    footer = ?,
     cnpj = ?,
     razaoSocial = ?,
     inscricaoEstadual = ?,
@@ -49,7 +51,7 @@ $stmt = mysqli_prepare($db, $sql);
 
 if ($stmt) {
     // Associação de parâmetros
-    mysqli_stmt_bind_param($stmt, "ssssssssssssss", $label, $instructions, $cnpj, $razaoSocial, $inscricaoEstadual, $endereco, $numero, $bairro, $cidade, $uf, $cep, $nameContact, $numberContact, $idStore);
+    mysqli_stmt_bind_param($stmt, "sssssssssssssss", $label, $instructions, $footer, $cnpj, $razaoSocial, $inscricaoEstadual, $endereco, $numero, $bairro, $cidade, $uf, $cep, $nameContact, $numberContact, $idStore);
     // Execução da consulta
     if (!mysqli_stmt_execute($stmt)) {
         http_response_code(500);

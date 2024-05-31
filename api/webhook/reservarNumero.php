@@ -93,7 +93,7 @@ if(!is_numeric($inputMessage)){
 $chosenNumber = intval($inputMessage);
 
 /// PESQUISA POR SORTEIOS
-$sql = "SELECT idRaffle, numbers, referenceCode, price, instructions, percentageNotify, flatNotify, buyLimit FROM raffles WHERE idGroup = '{$idGroup}' AND `status` = 1;";
+$sql = "SELECT idRaffle, numbers, referenceCode, price, instructions, footer, percentageNotify, flatNotify, buyLimit FROM raffles WHERE idGroup = '{$idGroup}' AND `status` = 1;";
 if(!$result = mysqli_query($db,$sql)){
     http_response_code(500);
     die(json_encode(['ref' => 7, 'debug' => mysqli_error($db)]));
@@ -106,6 +106,7 @@ $idRaffle = $row['idRaffle'];
 $numbers = intval($row['numbers']);
 $refCodeRaffle = intval($row['referenceCode']);
 $instructionsRaffle = $row['instructions'];
+$footerRaffle = $row['footer'];
 $percentageNotify = intval($row['percentageNotify']);
 $flatNotify = intval($row['flatNotify']);
 $buyLimit = intval($row['buyLimit']);
@@ -245,7 +246,6 @@ while($row = mysqli_fetch_assoc($result)){
     $jsonParticipants[strval($row['drawnNumber'])] = $row;
 }
 $participantsString = "";
-$lastNumbersString = "";
 for( $index = 1; $index <= $numbers; $index++){
     $drawnNumber = $index < 10 ? "0{$index}" : $index;
 
@@ -257,9 +257,25 @@ for( $index = 1; $index <= $numbers; $index++){
         $participantPhone = substr($participant['phoneId'],-4);
 
         $participantsString .= "{$participantName} - ..._{$participantPhone}";
-    }else{
-        $lastNumbersString .= $drawnNumber . PHP_EOL ;
     }
+}
+
+/// CAPTURA FOOTER DE PAGAMENTO
+$footer = "";
+if($footerRaffle == null || trim($footerRaffle) == ''){
+    /// busca instrução da loja
+    $sql = "SELECT footer FROM stores WHERE idStore = '{$idStore}';";
+    if(!$result = mysqli_query($db,$sql)){
+        http_response_code(500);
+        die(json_encode(['ref' => 17, 'debug' => mysqli_error($db)]));
+    }
+    if(mysqli_num_rows($result) > 0){
+        $row = mysqli_fetch_assoc($result);
+        $footer = $row['footer'];
+    } 
+
+}else{
+    $footer = $footerRaffle;
 }
 
 /// CAPTURA INSTRUÇÃO DE PAGAMENTO
@@ -304,21 +320,10 @@ $refCodeStore = intval($row['storeRef']) < 10 ? "0".$row['storeRef'] : $row['sto
 $referenceRaffle = "{$refCodeGroup}L{$refCodeStore}G{$row['ref']}S" . $refCodeRaffle;
 //////////////
 
-$footerString = $price > 0 ? "
-É bem simples Escolhe teu numero e faz o pix que te marcamos na LISTA" : '';
-
 /// DESLIGA BOT SE NUMEROS ESGOTARAM
 $outOfNumbers = false;
 if(count($jsonParticipants) >= $numbers ){
     $outOfNumbers = true;
-
-    $reqRes = sendZAPIReq(
-        [
-            "phone"=> "{$phoneId}",
-            "message"=>     "Números Esgotados".PHP_EOL.
-                            "Conferindo aqui os pagamentos e já vamos para o sorteio."
-        ]
-    );
 
     // notifica admins
     if($adminPhones != null){
@@ -350,6 +355,99 @@ if(count($jsonParticipants) >= $numbers ){
         die(json_encode(['ref' => 19, 'debug' => mysqli_error($db)]));
     }
 
+}
+
+/// VERIFICANDO LISTA
+
+$sql = "SELECT queueUpdateList FROM groups WHERE idGroup = '{$idGroup}';";
+if(!$result = mysqli_query($db,$sql)){
+    http_response_code(500);
+    die(json_encode(['ref' => 20, 'debug' => mysqli_error($db)]));
+}
+$row = mysqli_fetch_assoc($result);
+$queueUpdateList = $row['queueUpdateList'];
+
+$currentTimestamp = strtotime(date('Y-m-d H:i:s'));
+if($queueUpdateList != null){
+    $timestampUpdate = strtotime($queueUpdateList);
+    if($timestampUpdate >= $currentTimestamp){
+        http_response_code(200);
+        die(json_encode([
+            'ref' => 22, 
+            'desc' => 'Lista agendada',
+            'debug' => [
+                '$timestampUpdate' => $timestampUpdate,
+                '$currentTimestamp' => $currentTimestamp,
+                '$queueUpdateList' => $queueUpdateList,
+            ]
+        ]));
+    }
+}
+
+$sleepSeconds = rand(60,75);
+$queueUpdateList = $currentTimestamp + $sleepSeconds;
+$queueUpdateList = date('Y-m-d H:i:s',$queueUpdateList);
+
+$sql = "UPDATE groups SET queueUpdateList = '{$queueUpdateList}' WHERE idGroup = '{$idGroup}';";
+if(!$result = mysqli_query($db,$sql)){
+    http_response_code(500);
+    die(json_encode(['ref' => 23, 'debug' => mysqli_error($db)]));
+}
+sleep($sleepSeconds);
+
+/////////////////////////////////////// PÓS SLEEP
+/// PESQUISA PARTICIPANTES
+$jsonParticipants = [];
+$sql = "SELECT name, paid, drawnNumber, phoneId FROM participants WHERE idRaffle = '{$idRaffle}' ORDER BY drawnNumber ASC;";
+if(!$result = mysqli_query($db,$sql)){
+    http_response_code(500);
+    die(json_encode(['ref' => 24, 'debug' => mysqli_error($db)]));
+}
+
+while($row = mysqli_fetch_assoc($result)){
+    $jsonParticipants[strval($row['drawnNumber'])] = $row;
+}
+$participantsString = "";
+$lastNumbersString = "";
+for( $index = 1; $index <= $numbers; $index++){
+    $drawnNumber = $index < 10 ? "0{$index}" : $index;
+
+    $participantsString .= PHP_EOL ."{$drawnNumber} - ";
+
+    if(isset($jsonParticipants[strval($index)])){
+        $participant = $jsonParticipants[strval($index)];
+        $participantName = explode(' ',$participant['name'])[0];
+        $participantPhone = substr($participant['phoneId'],-4);
+
+        $participantsString .= "{$participantName} - ..._{$participantPhone}";
+    }else{
+        $lastNumbersString .= $drawnNumber . PHP_EOL ;
+    }
+}
+
+/// NOVA LISTA
+$jsonList = [
+    "phone" => "{$phoneId}",
+    "message"=> "{$labelGroup}".PHP_EOL.
+    "{$referenceRaffle}".PHP_EOL.PHP_EOL.
+    "🔥  *VALOR: R$ {$priceBRL} por número.*".PHP_EOL.
+    "{$awardsString}".PHP_EOL.
+    "{$instructions}".PHP_EOL.
+    PHP_EOL.
+    "_*REGRAS NA DESCRIÇÃO DO GRUPO*_".PHP_EOL.
+    "{$participantsString}".PHP_EOL.
+    PHP_EOL.
+    "{$footer}"
+];
+$reqResList = sendZAPIReq($jsonList);
+if(count($jsonParticipants) >= $numbers ){
+    $reqRes = sendZAPIReq(
+        [
+            "phone"=> "{$phoneId}",
+            "message"=>     "Números Esgotados".PHP_EOL.
+                            "Conferindo aqui os pagamentos e já vamos para o sorteio."
+        ]
+    );
 } else {
     // Calcular a quantidade de números restantes
     $sold = count($jsonParticipants);
@@ -400,89 +498,6 @@ if(count($jsonParticipants) >= $numbers ){
         }
     }
 }
-
-///////////////// ENVIANDO LISTA /////////////////
-
-    $sql = "SELECT queueUpdateList FROM groups WHERE idGroup = '{$idGroup}';";
-    if(!$result = mysqli_query($db,$sql)){
-        http_response_code(500);
-        die(json_encode(['ref' => 20, 'debug' => mysqli_error($db)]));
-    }
-    $row = mysqli_fetch_assoc($result);
-    $queueUpdateList = $row['queueUpdateList'];
-    
-    $currentTimestamp = strtotime(date('Y-m-d H:i:s'));
-    if($queueUpdateList != null){
-        $timestampUpdate = strtotime($queueUpdateList);
-        if($timestampUpdate >= $currentTimestamp){
-            http_response_code(200);
-            die(json_encode([
-                'ref' => 22, 
-                'desc' => 'Lista agendada',
-                'debug' => [
-                    '$timestampUpdate' => $timestampUpdate,
-                    '$currentTimestamp' => $currentTimestamp,
-                    '$queueUpdateList' => $queueUpdateList,
-                ]
-            ]));
-        }
-    }
-    
-    $sleepSeconds = rand(60,75);
-    $queueUpdateList = $currentTimestamp + $sleepSeconds;
-    $queueUpdateList = date('Y-m-d H:i:s',$queueUpdateList);
-    
-    $sql = "UPDATE groups SET queueUpdateList = '{$queueUpdateList}' WHERE idGroup = '{$idGroup}';";
-    if(!$result = mysqli_query($db,$sql)){
-        http_response_code(500);
-        die(json_encode(['ref' => 23, 'debug' => mysqli_error($db)]));
-    }
-    sleep($sleepSeconds);
-
-
-/// PESQUISA PARTICIPANTES
-$jsonParticipants = [];
-$sql = "SELECT name, paid, drawnNumber, phoneId FROM participants WHERE idRaffle = '{$idRaffle}' ORDER BY drawnNumber ASC;";
-if(!$result = mysqli_query($db,$sql)){
-    http_response_code(500);
-    die(json_encode(['ref' => 24, 'debug' => mysqli_error($db)]));
-}
-
-while($row = mysqli_fetch_assoc($result)){
-    $jsonParticipants[strval($row['drawnNumber'])] = $row;
-}
-$participantsString = "";
-$lastNumbersString = "";
-for( $index = 1; $index <= $numbers; $index++){
-    $drawnNumber = $index < 10 ? "0{$index}" : $index;
-
-    $participantsString .= PHP_EOL ."{$drawnNumber} - ";
-
-    if(isset($jsonParticipants[strval($index)])){
-        $participant = $jsonParticipants[strval($index)];
-        $participantName = explode(' ',$participant['name'])[0];
-        $participantPhone = substr($participant['phoneId'],-4);
-
-        $participantsString .= "{$participantName} - ..._{$participantPhone}";
-    }else{
-        $lastNumbersString .= $drawnNumber . PHP_EOL ;
-    }
-}
-
-/// NOVA LISTA
-$jsonList = [
-    "phone" => "{$phoneId}",
-    "message"=> "{$labelGroup}".PHP_EOL.
-    "{$referenceRaffle}".PHP_EOL.PHP_EOL.
-    "🔥  *VALOR: R$ {$priceBRL} por número.*".PHP_EOL.
-    "{$awardsString}".PHP_EOL.
-    "{$instructions}".PHP_EOL.
-    PHP_EOL.
-    "_*REGRAS NA DESCRIÇÃO DO GRUPO*_".PHP_EOL.
-    "{$participantsString}".PHP_EOL.
-    "{$footerString}"
-];
-$reqResList = sendZAPIReq($jsonList);
 
 http_response_code(200);
 die(json_encode($reqResList, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));

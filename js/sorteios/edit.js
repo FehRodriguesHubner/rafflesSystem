@@ -6,6 +6,7 @@ const campos = [
     {label:'Qtd. Números', key: 'numbers'},
     {label:'Preço Unitário', key: 'price'},
     {label:'Instruções de Pagamento', key: 'instructions'},
+    {label:'Rodapé', key: 'footer'},
     {label:'Limite por Pessoa', key: 'buyLimit'},
     {label:'Porcentagem Restante (notificação) ', key: 'percentageNotify'},
     {label:'Número Restante (notificação) ', key: 'flatNotify'},
@@ -180,6 +181,7 @@ async function renderDefaultForm(){
                 `);
                 break;
             case 'instructions':
+            case 'footer':
                 $('#inputs-row').append(`
                     <div class="col-12">
                         <div class="input-group mb-3">
@@ -251,6 +253,9 @@ async function renderDefaultForm(){
     // MÁSCARAS
 
     $('#input-instructions')
+    .attr('data-optional','true');
+
+    $('#input-footer')
     .attr('data-optional','true');
 
     $('#input-buyLimit')

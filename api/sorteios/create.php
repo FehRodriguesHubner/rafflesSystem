@@ -18,6 +18,7 @@ $numbers = $json['numbers'];
 $price = $json['price'];
 $buyLimit = $json['buyLimit'];
 $instructions = $json['instructions'];
+$footer = $json['footer'];
 $resultLink = $json['resultLink'];
 $percentageNotify = $json['percentageNotify'];
 $flatNotify = $json['flatNotify'];
@@ -59,10 +60,12 @@ $sql = "INSERT INTO raffles (
     price,
     buyLimit,
     instructions,
+    footer,
     resultLink,
     percentageNotify,
     flatNotify
 ) VALUES (
+    ?,
     ?,
     ?,
     ?,
@@ -81,7 +84,7 @@ $stmt = mysqli_prepare($db, $sql);
 
 if ($stmt) {
     // Associação de parâmetros
-    mysqli_stmt_bind_param($stmt, "ssiisisissii", $idRaffle, $idGroup, $status, $numbers, $raffleDate, $referenceCode, $price, $buyLimit, $instructions, $resultLink, $percentageNotify, $flatNotify);
+    mysqli_stmt_bind_param($stmt, "ssiisisisssii", $idRaffle, $idGroup, $status, $numbers, $raffleDate, $referenceCode, $price, $buyLimit, $instructions, $footer, $resultLink, $percentageNotify, $flatNotify);
     // Execução da consulta
     if (!mysqli_stmt_execute($stmt)) {
         http_response_code(500);

@@ -4,6 +4,7 @@ const campos = [
     //{label:'ID', key: 'idCGroup' },
     {label:'Nome Loja', key: 'label'},
     {label:'Instruções de Pagamento', key: 'instructions'},
+    {label:'Rodapé', key: 'footer'},
     {label:'CNPJ', key: 'cnpj'},
     {label:'Razão Social', key: 'razaoSocial'},
     {label:'Inscrição Estadual', key: 'inscricaoEstadual'},
@@ -154,6 +155,7 @@ async function renderDefaultForm(){
     for(let campo of campos){
         // adiciona campo
         switch(campo.key){
+            case 'footer':
             case 'instructions':
                 $('#inputs-row').append(`
                     <div class="col-12">
@@ -237,6 +239,9 @@ async function renderDefaultForm(){
 
     $('#input-nameContact')
         .attr('data-optional','true');
+
+    $('#input-footer')
+    .attr('data-optional','true');
 
     maskInputs();
 

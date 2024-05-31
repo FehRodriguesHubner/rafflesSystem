@@ -14,6 +14,7 @@ $json = json_decode($json,true);
 $idCGroup = $json['id'];
 $label = $json['label'];
 $instructions = $json['instructions'];
+$footer = $json['footer'];
 $cnpj = $json['cnpj'];
 $razaoSocial = $json['razaoSocial'];
 $inscricaoEstadual = $json['inscricaoEstadual'];
@@ -26,7 +27,7 @@ $cep = $json['cep'];
 $nameContact = $json['nameContact'];
 $numberContact = $json['numberContact'];
 
-if($label == null || $idCGroup == null ){
+if($label == null || $instructions == null || $idCGroup == null ){
     http_response_code(400);
     die();
 }
@@ -47,6 +48,7 @@ $sql = "INSERT INTO stores(
     referenceCode,
     label,
     instructions,
+    footer,
     cnpj,
     razaoSocial,
     inscricaoEstadual,
@@ -74,6 +76,7 @@ $sql = "INSERT INTO stores(
     ?,
     ?,
     ?,
+    ?,
     ?
 );";
 
@@ -82,7 +85,7 @@ $stmt = mysqli_prepare($db, $sql);
 
 if ($stmt) {
     // Associação de parâmetros
-    mysqli_stmt_bind_param($stmt, "ssisssssssssssss", $idStore, $idCGroup, $referenceCode, $label, $instructions, $cnpj, $razaoSocial, $inscricaoEstadual, $endereco, $numero, $bairro, $cidade, $uf, $cep, $nameContact, $numberContact);
+    mysqli_stmt_bind_param($stmt, "ssissssssssssssss", $idStore, $idCGroup, $referenceCode, $label, $instructions, $footer, $cnpj, $razaoSocial, $inscricaoEstadual, $endereco, $numero, $bairro, $cidade, $uf, $cep, $nameContact, $numberContact);
     // Execução da consulta
     if (!mysqli_stmt_execute($stmt)) {
         http_response_code(500);

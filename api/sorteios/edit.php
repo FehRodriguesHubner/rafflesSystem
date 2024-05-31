@@ -1,6 +1,6 @@
 <?php 
-////error_reporting(E_ALL);
-////ini_set('display_errors', 1);
+//error_reporting(E_ALL);
+//ini_set('display_errors', 1);
 require_once(__DIR__ . '/../../config/session-config.php');
 require_once(__DIR__ . '/../../config/https-redirect.php');
 if (empty($_SESSION['idUser'])) {http_response_code(401);die();}
@@ -14,6 +14,7 @@ $status = strval($json['status']);
 $raffleDate = empty($json['raffleDate']) ? null : $json['raffleDate'];
 $buyLimit = $json['buyLimit'];
 $instructions = $json['instructions'];
+$footer = $json['footer'];
 $resultLink = $json['resultLink'];
 $percentageNotify = $json['percentageNotify'];
 $flatNotify = $json['flatNotify'];
@@ -37,6 +38,7 @@ $sql = "UPDATE raffles SET
     raffleDate = ?,
     buyLimit = ?,
     instructions = ?,
+    footer = ?,
     resultLink = ?,
     percentageNotify = ?,
     flatNotify = ?
@@ -46,7 +48,7 @@ $stmt = mysqli_prepare($db, $sql);
 
 if ($stmt) {
     // Associação de parâmetros
-    mysqli_stmt_bind_param($stmt, "sisiiis", $raffleDate, $buyLimit, $instructions, $resultLink, $percentageNotify, $flatNotify, $idRaffle);
+    mysqli_stmt_bind_param($stmt, "sissiiis", $raffleDate, $buyLimit, $instructions, $footer, $resultLink, $percentageNotify, $flatNotify, $idRaffle);
     // Execução da consulta
     if (!mysqli_stmt_execute($stmt)) {
         http_response_code(500);
@@ -106,8 +108,8 @@ if($rafflesActive == 0){
     }else{
         $sqlGroup = "UPDATE groups SET botStatus = 0 WHERE idGroup = '{$idGroup}';";   
     }
+    $result = mysqli_query($db,$sqlGroup);
 }
-$result = mysqli_query($db,$sqlGroup);
 
 // atualiza status do sorteio
 $sql = "UPDATE raffles SET status = {$status} WHERE idRaffle = '{$idRaffle}';";
