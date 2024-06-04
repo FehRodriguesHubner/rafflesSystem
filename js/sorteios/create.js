@@ -287,6 +287,19 @@ async function renderDefaultForm(){
         $('#input-flatNotify').trigger('input');
     });
 
+    // Função para limit buyLimit
+    $('#input-numbers,#input-buyLimit').on('change', function(){
+        if(parseInt($('#input-buyLimit').val()) > 0){
+            if(
+                $('#input-buyLimit').val() > (parseInt($('#input-numbers').val()))
+            ){
+                $('#input-buyLimit').val(parseInt($('#input-numbers').val()));
+            }
+        }else{
+            $('#input-buyLimit').val('');
+        }
+    });
+
     // Eventos de entrada nos inputs
     $('#input-percentageNotify').on('input', toggleInputs);
     $('#input-flatNotify').on('input', toggleInputs);
