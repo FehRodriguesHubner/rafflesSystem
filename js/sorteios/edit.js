@@ -334,6 +334,24 @@ async function renderDefaultForm(){
             $('#input-percentageNotify').removeClass('disabled').removeAttr('disabled');
         }
     }
+    
+    // Função para limit flatnotify
+    $('#input-numbers,#input-flatNotify').on('change', function(){
+        if(parseInt($('#input-flatNotify').val()) > 1){
+            if(
+                $('#input-flatNotify').val() >= (parseInt($('#input-numbers').val()))
+            ){
+                if(parseInt($('#input-numbers').val()) == 1){
+                    $('#input-flatNotify').val('');
+                }else{
+                    $('#input-flatNotify').val(Math.abs(parseInt($('#input-numbers').val()) -1));
+                }
+            }
+        }else{
+            $('#input-flatNotify').val('');
+        }
+        $('#input-flatNotify').trigger('input');
+    });
 
     // Eventos de entrada nos inputs
     $('#input-percentageNotify').on('input', toggleInputs);
