@@ -1,5 +1,45 @@
 <?php
 
+function success($response = null,$status = 200){
+    http_response_code($status);
+
+    if($response === null){
+        $response = ['success' => true];
+    }else 
+    if(is_string($response)){
+        $response = ['success' => true, 'message' => $response];
+    } else
+    if(is_array($response)){
+        $response['success'] = true;
+    }else{
+        die();
+    }
+
+    die(json_encode($response, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+
+}
+
+function error($response = null,$status = 500){
+    global $db;
+    http_response_code($status);
+
+    if($response === null){
+        $response = ['error' => true, 'dbError' => mysqli_error($db)];
+
+    }else if(is_string($response)){
+        $response = ['error' => true, 'message' => $response, 'dbError' => mysqli_error($db)];
+
+    } else if(is_array($response)){
+        $response['error'] = true;
+
+    }else{
+        die($response);
+    }
+
+    die(json_encode($response, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+
+}
+
 function getUUID(){
     global $db;
 

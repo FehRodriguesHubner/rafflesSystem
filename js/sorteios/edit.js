@@ -74,17 +74,33 @@ $(function(){
             body:JSON.stringify(jsonCampos)
         });
 
-        if(fetchResponse.status != 200){
-            dispatchPopup('error','Ops! ocorreu um erro.','Não foi possível ao verificar o resultado de sua ação. Por favor, tente novamente mais tarde.');
-
-            return false;
-
+        let fetchJsonResponse = null;
+        try{
+            fetchJsonResponse = await fetchResponse.json();
+        }catch(ex){
+            fetchJsonResponse = null;
         }
 
-        dispatchPopup('success','Pronto!','Atualização realizada com sucesso.').then(function(){
-            history.back();
-        });
+        console.log(fetchJsonResponse);
+        if(fetchResponse.status != 200){
+            if(fetchJsonResponse?.message != null){
+                dispatchPopup('error','Ops! ocorreu um erro.',fetchJsonResponse?.message);   
+            }else{
+                dispatchPopup('error','Ops! ocorreu um erro.','Não foi possível ao verificar o resultado de sua ação. Por favor, tente novamente mais tarde.');
+            }
 
+            return false;
+        }else{
+            if(fetchJsonResponse?.message != null){
+                dispatchPopup('success','Pronto!',fetchJsonResponse?.message).then(function(){
+                    history.back();
+                });
+                return;
+            }
+            dispatchPopup('success','Pronto!','Atualização realizada com sucesso.').then(function(){
+                history.back();
+            });
+        }
     });
 
 })

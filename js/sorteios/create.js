@@ -2,7 +2,6 @@ const pageSlug = 'sorteios';
 const pageName = 'Sorteios';
 const campos = [
     //{label:'ID', key: 'idCGroup' },
-    {label:'Status', key: 'status'},
     {label:'Qtd. Números', key: 'numbers'},
     {label:'Preço Unitário', key: 'price'},
     {label:'Instruções de Pagamento', key: 'instructions'},
@@ -61,7 +60,7 @@ $(function(){
         jsonCampos.id = id;
 
         ///////
-        jsonCampos['status'] = $('#input-status').is(':checked') ? 1 : 0;
+        //jsonCampos['status'] = $('#input-status').is(':checked') ? 1 : 0;
 
         // REQUISIÇÃO
         popupLoading();
@@ -269,6 +268,24 @@ async function renderDefaultForm(){
             $('#input-percentageNotify').removeClass('disabled').removeAttr('disabled');
         }
     }
+
+    // Função para limit flatnotify
+    $('#input-numbers,#input-flatNotify').on('change', function(){
+        if(parseInt($('#input-flatNotify').val()) > 1){
+            if(
+                $('#input-flatNotify').val() >= (parseInt($('#input-numbers').val()))
+            ){
+                if(parseInt($('#input-numbers').val()) == 1){
+                    $('#input-flatNotify').val('');
+                }else{
+                    $('#input-flatNotify').val(Math.abs(parseInt($('#input-numbers').val()) -1));
+                }
+            }
+        }else{
+            $('#input-flatNotify').val('');
+        }
+        $('#input-flatNotify').trigger('input');
+    });
 
     // Eventos de entrada nos inputs
     $('#input-percentageNotify').on('input', toggleInputs);

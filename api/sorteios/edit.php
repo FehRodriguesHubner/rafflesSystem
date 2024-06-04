@@ -72,16 +72,14 @@ $rafflesActive = mysqli_num_rows($result);
 if($status == 1){
     // verifica se há outros sorteios ativos
     if($rafflesActive > 0 ){
-        http_response_code(200);
-        die('rafflesActive: '. $rafflesActive);
+        success('Há outro sorteio ativo no grupo, portanto este não será ativado.');
     }
 
     // verifica se tem prêmios registrados
     $sql = "SELECT idAward FROM awards WHERE idRaffle = '{$idRaffle}';";
     $result = mysqli_query($db,$sql);
     if(mysqli_num_rows($result) < 1){
-        http_response_code(200);
-        die('Sem prêmios');
+        success('Cadastre ao menos 1 prêmio para ativar o sorteio');
     }
 
     // verifica se já vendeu todos os números
@@ -96,8 +94,7 @@ if($status == 1){
     $numbers = intval($row['numbers']);
 
     if($participantsNumber >= $numbers){
-        http_response_code(200);
-        die('mais participantes: '.$participantsNumber .' ' . $numbers);
+        success('O sorteio não pode ser ativo pois já atingiu o limite de reservas');
     }
 }
 
@@ -116,6 +113,7 @@ $sql = "UPDATE raffles SET status = {$status} WHERE idRaffle = '{$idRaffle}';";
 $result = mysqli_query($db,$sql);
 
 http_response_code(200);
-die($sqlGroup);
+success('Sorteio atualizado com sucesso!');
+
 
 ?>

@@ -172,7 +172,7 @@ if($buyLimit > 0){
                 "phone"=> "{$phoneId}",
                 "message"=>     "🚫 _*Reserva não efetuada!*_".PHP_EOL.
                                 PHP_EOL.
-                                "Você não pode efetuar mais de {$buyLimit} reserva(s).",
+                                "O sorteio atual permite que cada participante selecione no máximo {$buyLimit} número(s).",
                 "messageId"=> "{$messageId}"
             ]
         );
