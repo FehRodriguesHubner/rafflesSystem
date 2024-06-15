@@ -22,6 +22,10 @@ $participantPhoneId = mysqli_real_escape_string($db,$req['participantPhone']);
 $senderName         = mysqli_real_escape_string($db,$req['senderName']);
 $inputMessage       = $req['text']['message'];
 
+if($senderName == null || empty($senderName) || trim($senderName) == ""){
+    $senderName = "[sem-nome]";
+}
+
 // VALIDA VARIÁVEIS
 if(
     empty($phoneId) ||
@@ -441,11 +445,14 @@ $jsonList = [
 ];
 $reqResList = sendZAPIReq($jsonList);
 if(count($jsonParticipants) >= $numbers ){
+
+    $outOfNumbersText = $price > 0 ? "Conferindo aqui os pagamentos e já vamos para o sorteio." : "Conferindo aqui e já vamos para o sorteio.";
+
     $reqRes = sendZAPIReq(
         [
             "phone"=> "{$phoneId}",
             "message"=>     "Números Esgotados".PHP_EOL.
-                            "Conferindo aqui os pagamentos e já vamos para o sorteio."
+                            $outOfNumbersText
         ]
     );
 } else {
