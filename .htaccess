@@ -9,6 +9,15 @@ RewriteRule ^grupos-comerciais/cadastrar$       pages/grupos-comerciais/create.p
 RewriteRule ^grupos-comerciais/editar/(.*)$     pages/grupos-comerciais/edit.php?id=$1
 
 RewriteRule ^grupos-comerciais/acessar/(.*)$     pages/lojas/list.php?id=$1
+RewriteRule ^grupos-comerciais/instancias/(.*)$  pages/instancias/list.php?id=$1
+
+
+## Instancias
+
+RewriteRule ^instancias/cadastrar/(.*)$      pages/instancias/create.php?id=$1
+RewriteRule ^instancias/editar/(.*)$         pages/instancias/edit.php?id=$1
+
+RewriteRule ^instancias/acessar/(.*)$        pages/grupos/list.php?id=$1
 
 ## LOJAS
 

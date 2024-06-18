@@ -12,6 +12,23 @@ CREATE TABLE cGroups(
     updatedAt datetime ON UPDATE CURRENT_TIMESTAMP()
 );
 
+CREATE TABLE instances(
+	idInstance varchar(36) primary key,
+	idCGroup varchar(36) not null,
+
+    label varchar(50) not null,
+
+    zApiIdInstancia varchar(50) not null,
+    zApiTokenInstancia varchar(50) not null,
+    zApiSecret varchar(50) not null,
+
+    orderNumber int not null,
+
+    createdAt datetime default CURRENT_TIMESTAMP(),
+    updatedAt datetime ON UPDATE CURRENT_TIMESTAMP(),
+    FOREIGN KEY (idCGroup) REFERENCES cGroups(idCGroup)
+);
+
 
 CREATE TABLE stores(
     idStore varchar(36) primary key,
