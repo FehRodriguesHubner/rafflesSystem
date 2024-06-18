@@ -379,7 +379,26 @@ $(function () {
                     &nbsp
                     Download PDF `,
                     className: 'btn-warning fw-bold'
-                }
+                },
+                { // Custom Button definition
+                    text: `<i class="fa fa-list"></i> &nbsp Enviar Lista Atualizada `, // Button text
+                    className: 'btn-success', // Button class for styling
+                    action: function (e, dt, node, config) {
+                        dispatchPopup('warning','Atenção','Tem certeza que deseja enviar a lista atualizada no grupo?',{showCancelButton:true,cancelButtonText:'Cancelar'}).then(async function(swalRes){
+                            if(!swalRes.isConfirmed) return;
+
+                            const idRaffle = id;
+                            try{
+                                jsonResponse = await fetchReq(`sorteios/sendList.php`,{
+                                    "idRaffle": idRaffle
+                                });
+                            }catch(except){ console.log(except); return;}
+
+                            dispatchPopup('success','Pronto!','Lista enviada com sucesso!');
+
+                        })
+                    }
+                  }
             ],
             columnDefs: [
                 {
