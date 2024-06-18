@@ -12,16 +12,21 @@ $json = json_decode($json,true);
 
 $idGroup = mysqli_real_escape_string($db,$json['id']);
 $label = $json['label'];
-$phoneId = mysqli_real_escape_string($db,$json['phoneId']);
 $link = $json['link'];
 $status = strval($json['status']);
 $triggerMessage = $json['triggerMessage'];
 $redirectLink = $json['redirectLink'];
 $adminPhones = $json['adminPhones'];
 
+$endpoint = $groupEndpoint;
+$endpoint .= "?url=" . urlencode($link);
+
+$result = sendReq($endpoint,null,'GET',30,["Client-Token: {$clientToken}"]);
+if($result['status'] != 200 || $result['response']['error'] != null) error('Falha ao capturar dados do Grupo. Por favor, revise o link informado');
+$phoneId = $result['response']['phone'];
+
 if ($idGroup == null || $label == null || $phoneId == null || $link == null || $status == null) {
-    http_response_code(400);
-    die();
+    error(['message'=>'Dados insuficiêntes. Contate o suporte','debug' => [$result,$endpoint]],400);
 }
 
 $sql = "SELECT idGroup FROM groups WHERE phoneId = '{$phoneId}' AND idGroup != '{$idGroup}';";

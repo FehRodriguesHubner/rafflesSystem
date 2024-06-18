@@ -3,7 +3,7 @@ const pageName = 'Grupos';
 const campos = [
     {label:'Nome Grupo', key: 'label'},
     {label:'Link do Grupo', key: 'link'},
-    {label:'Telefone Grupo (Whatsapp ID)', key: 'phoneId'},
+    //{label:'Telefone Grupo (Whatsapp ID)', key: 'phoneId'},
     //{label:'Status do Bot', key: 'botStatus'},
     {label:'Status', key: 'status'},
     {label:'Telefones Admin (separados por vírgula)', key: 'adminPhones'},

@@ -120,23 +120,25 @@ function sendZAPIReq($payload,$encode = true)
     }
 }
 
-function sendReq($endpoint,$payload, $method = "POST", $timeout = 10)
+function sendReq($endpoint,$payload, $method = "POST", $timeout = 10, $headersArray = [])
 {
 
     $url = $endpoint;
-    $data = $payload;
-
     
-    $jsonData = json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    
     $ch = curl_init($url);
     
+    if($payload != null){
+        $data = $payload;
+        $jsonData = json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
+    }
     curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_TIMEOUT_MS, ($timeout * 1000));
-    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-        "Content-Type: application/json"
-    ));
+
+    array_push($headersArray,"Content-Type: application/json");
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headersArray);
 
     $response = curl_exec($ch);
 
