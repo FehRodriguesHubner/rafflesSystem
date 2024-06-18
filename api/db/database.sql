@@ -3,6 +3,7 @@ CREATE TABLE cGroups(
 	idCGroup varchar(36) primary key,
     referenceCode int not null,
     label varchar(50) not null,
+    showPaymentConfirm boolean default 0,
     nameContact varchar(50),
     numberContact varchar(50),
     email varchar(50),

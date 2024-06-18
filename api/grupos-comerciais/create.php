@@ -14,6 +14,7 @@ $json = json_decode($json,true);
 $label = $json['label'];
 $nameContact = $json['nameContact'];
 $numberContact = $json['numberContact'];
+$showPaymentConfirm = strval($json['showPaymentConfirm']);
 
 if($label == null){
     http_response_code(400);
@@ -35,8 +36,10 @@ $sql = "INSERT INTO cGroups(
     nameContact,
     numberContact,
     idCGroup,
-    referenceCode
+    referenceCode,
+    showPaymentConfirm
 ) VALUES(
+    ?,
     ?,
     ?,
     ?,
@@ -48,7 +51,7 @@ $stmt = mysqli_prepare($db, $sql);
 
 if ($stmt) {
     // Associação de parâmetros
-    mysqli_stmt_bind_param($stmt, "ssssi", $label,$nameContact,$numberContact,$idCGroup,$referenceCode);
+    mysqli_stmt_bind_param($stmt, "ssssii", $label,$nameContact,$numberContact,$idCGroup,$referenceCode,$showPaymentConfirm);
     // Execução da consulta
     if (!mysqli_stmt_execute($stmt)) {
         http_response_code(500);

@@ -2,8 +2,10 @@ const pageSlug = 'grupos-comerciais';
 const pageName = 'Grupos Comerciais';
 const campos = [
     {label:'Nome Grupo', key: 'label'},
+    {label:'Exibir Confirmação de Pagamento na LISTA', key: 'showPaymentConfirm'},
     {label:'Nome Contato', key: 'nameContact'},
-    {label:'Número Contato', key: 'numberContact'}
+    {label:'Número Contato', key: 'numberContact'},
+    
 ];
 
 window.addEventListener('DOMContentLoaded', async function () {
@@ -48,6 +50,7 @@ $(function(){
             dispatchPopup('warning','Atenção', 'Verifique os campos destacados.');
             return null;
         }
+        jsonCampos['showPaymentConfirm'] = $('#input-showPaymentConfirm').is(':checked') ? 1 : 0;
         const id = $('#get_id').val();
         jsonCampos.id = id;
 
@@ -129,6 +132,36 @@ async function renderDefaultForm(){
     for(let campo of campos){
         // adiciona campo
         switch(campo.key){
+            case 'showPaymentConfirm':
+
+                $('#inputs-row').append(`
+                    <div class="col-12">
+                        <div class="input-group mb-3">
+                            <label for="input-${campo.key}">${campo.label}</label>
+                            <div class="w-100">
+                                <div class="input-container">
+
+                                    <label class="rb-container">
+                                        <input checked id="input-${campo.key}" value="1" type="radio" name="input-${campo.key}" />
+                                        Ativado
+                                        <span class="rb-checkmark"></span>
+                                    </label>
+                                    
+                                    <label class="rb-container">
+                                        <input id="input-${campo.key}-2" value="0" type="radio" name="input-${campo.key}" />
+                                        Desativado
+                                        <span class="rb-checkmark"></span>
+                                    </label>
+
+                                    <small class="input-message"></small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `);
+
+                break;
+
             default:
                 $('#inputs-row').append(`
                     <div class="col-12">

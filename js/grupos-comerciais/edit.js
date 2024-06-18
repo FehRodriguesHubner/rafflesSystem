@@ -4,6 +4,7 @@ const campos = [
     //{label:'ID', key: 'idCGroup' },
     {label:'Nome Grupo', key: 'label'},
     {label:'Nome Contato', key: 'nameContact'},
+    {label:'Exibir Confirmação de Pagamento na LISTA', key: 'showPaymentConfirm'},
     {label:'Número Contato', key: 'numberContact'}
 ];
 
@@ -51,6 +52,8 @@ $(function(){
         }
         const id = $('#get_id').val();
         jsonCampos.id = id;
+        jsonCampos['showPaymentConfirm'] = $('#input-showPaymentConfirm').is(':checked') ? 1 : 0;
+
 
         // REQUISIÇÃO
         popupLoading();
@@ -143,6 +146,36 @@ async function renderDefaultForm(){
     for(let campo of campos){
         // adiciona campo
         switch(campo.key){
+            case 'showPaymentConfirm':
+
+                $('#inputs-row').append(`
+                    <div class="col-12">
+                        <div class="input-group mb-3">
+                            <label for="input-${campo.key}">${campo.label}</label>
+                            <div class="w-100">
+                                <div class="input-container">
+
+                                    <label class="rb-container">
+                                        <input checked id="input-${campo.key}" value="1" type="radio" name="input-${campo.key}" />
+                                        Ativado
+                                        <span class="rb-checkmark"></span>
+                                    </label>
+                                    
+                                    <label class="rb-container">
+                                        <input id="input-${campo.key}-2" value="0" type="radio" name="input-${campo.key}" />
+                                        Desativado
+                                        <span class="rb-checkmark"></span>
+                                    </label>
+
+                                    <small class="input-message"></small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `);
+
+            break;
+
             default:
                 $('#inputs-row').append(`
                     <div class="col-12">
@@ -162,6 +195,15 @@ async function renderDefaultForm(){
 
         // define valor do campo
         switch(campo.key){
+            case 'showPaymentConfirm':
+                if(result[campo.key] == 1){
+                    $(`#input-${campo.key}`).prop('checked',true);
+                    
+                }else{
+                    $(`#input-${campo.key}-2`).prop('checked',true);
+                }
+                break;
+
             default:
                 $(`#input-${campo.key}`).val(result[campo.key]);
                 break;

@@ -14,19 +14,20 @@ $idCGroup = $json['id'];
 $label = $json['label'];
 $nameContact = $json['nameContact'];
 $numberContact = $json['numberContact'];
+$showPaymentConfirm = strval($json['showPaymentConfirm']);
 
 if($idCGroup == null || $label == null){
     http_response_code(400);
     die();
 }
 
-$sql = "UPDATE cGroups SET label = ?, nameContact = ?, numberContact = ? WHERE idCGroup = ?";
+$sql = "UPDATE cGroups SET label = ?, nameContact = ?, numberContact = ?, showPaymentConfirm = ? WHERE idCGroup = ?";
 
 $stmt = mysqli_prepare($db, $sql);
 
 if ($stmt) {
     // Associação de parâmetros
-    mysqli_stmt_bind_param($stmt, "ssss", $label,$nameContact,$numberContact,$idCGroup);
+    mysqli_stmt_bind_param($stmt, "sssis", $label,$nameContact,$numberContact,$showPaymentConfirm,$idCGroup);
     // Execução da consulta
     if (!mysqli_stmt_execute($stmt)) {
         http_response_code(500);

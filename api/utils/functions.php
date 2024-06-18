@@ -184,6 +184,7 @@ function montaListaGrupo($phoneId,$rowRaffle = null){
     $idGroup = $row['idGroup'];
     $labelGroup = $row['label'];
     $idStore = $row['idStore'];
+    $showPaymentConfirm = $row['showPaymentConfirm'];
 
     //busca sorteio ativo
     $row = $rowRaffle === null ? buscaSorteioAtivo($idGroup) : $rowRaffle;
@@ -222,7 +223,7 @@ function montaListaGrupo($phoneId,$rowRaffle = null){
     /// PESQUISA PARTICIPANTES
     $jsonParticipants = buscaParticipantes($idRaffle);
 
-    $participantsString = buscaStringParticipantes($numbers,$jsonParticipants);
+    $participantsString = buscaStringParticipantes($numbers,$jsonParticipants,$showPaymentConfirm);
 
 
     /// CAPTURA FOOTER DE PAGAMENTO
@@ -267,7 +268,7 @@ function buscaGrupo($phoneId){
     global $db;
 
     /// BUSCA GRUPO
-    $sql = "SELECT idGroup, botStatus, status, adminPhones, label, idStore FROM groups WHERE phoneId = '{$phoneId}';";
+    $sql = "SELECT g.idGroup, g.botStatus, g.status, g.adminPhones, g.label, g.idStore, cg.showPaymentConfirm FROM groups g INNER JOIN cGroup cg USING(idCGroup) WHERE g.phoneId = '{$phoneId}';";
     if(!$result = mysqli_query($db,$sql)) error('Falha ao buscar grupo');
     if(mysqli_num_rows($result) < 1) error('Grupo não encontrado');
     return mysqli_fetch_assoc($result);
@@ -364,7 +365,8 @@ function buscaUltimosNumeros($numbers,$jsonParticipants){
     return $lastNumbersString;
 }
 
-function buscaStringParticipantes($numbers,$jsonParticipants){
+function buscaStringParticipantes($numbers,$jsonParticipants,$showPaymentConfirm = 0){
+    
     $participantsString = "";
     for( $index = 1; $index <= $numbers; $index++){
         $drawnNumber = $index < 10 ? "0{$index}" : $index;
@@ -373,7 +375,11 @@ function buscaStringParticipantes($numbers,$jsonParticipants){
             $participant = $jsonParticipants[strval($index)];
             $participantName = explode(' ',$participant['name'])[0];
             $participantPhone = substr($participant['phoneId'],-4);
-            $participantsString .= "{$participantName} - ..._{$participantPhone}_";
+            $confirmPayment = "";
+            if($showPaymentConfirm == 1){
+                $confirmPayment = $participant['paid'] == 1 ? "🟢 " : "🟡 ";
+            }
+            $participantsString .= "{$confirmPayment}{$participantName} - ..._{$participantPhone}_";
         }
     }
     return $participantsString;
