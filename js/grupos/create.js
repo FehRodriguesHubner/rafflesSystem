@@ -198,7 +198,8 @@ async function renderDefaultForm(){
         .attr('data-optional','true');
 
     $('#input-adminPhones')
-        .attr('data-optional','true');
+        .attr('data-optional','true')
+        .attr('maxlength','500');
     
     maskInputs();
 
