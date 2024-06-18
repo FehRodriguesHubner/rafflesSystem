@@ -172,3 +172,207 @@ function sendReq($endpoint,$payload, $method = "POST", $timeout = 10)
         ];
     }
 }
+
+function montaListaGrupo($phoneId,$rowRaffle = null){
+    global $db;
+
+    // busca grupo
+    $row = buscaGrupo($phoneId);
+
+    $idGroup = $row['idGroup'];
+    $labelGroup = $row['label'];
+    $idStore = $row['idStore'];
+
+    //busca sorteio ativo
+    $row = $rowRaffle === null ? buscaSorteioAtivo($idGroup) : $rowRaffle;
+    
+    $idRaffle = $row['idRaffle'];
+    $numbers = intval($row['numbers']);
+    $refCodeRaffle = intval($row['referenceCode']);
+    $instructionsRaffle = $row['instructions'];
+    $footerRaffle = $row['footer'];
+    $price = floatval($row['price']);
+
+    $priceBRL = number_format($price, 2, ',', '.');
+
+    /// CAPTURA REFERENCIA DO SORTEIO
+    $row = buscaReferenciaGrupo($idGroup);
+
+    $refCodeGroup = intval($row['cGroupRef']) < 10 ? "0".$row['cGroupRef'] : $row['cGroupRef'];
+    $refCodeStore = $row['storeRef'];
+    $refCodeStore = intval($row['storeRef']) < 10 ? "0".$row['storeRef'] : $row['storeRef'];
+    $referenceRaffle = "{$refCodeGroup}L{$refCodeStore}G{$row['ref']}S" . $refCodeRaffle;
+
+    /// PESQUISA PRÊMIOS
+    $awardsString = buscaStringPremios($idRaffle);
+
+
+    /// CAPTURA INSTRUÇÃO DE PAGAMENTO
+    $instructions = "--";
+    if($instructionsRaffle == null || trim($instructionsRaffle) == ''){
+        /// busca instrução da loja
+        $instructions = buscaInstrucaoDaLoja($idStore);
+
+    }else{
+        $instructions = $instructionsRaffle;
+    }
+
+    /// PESQUISA PARTICIPANTES
+    $jsonParticipants = buscaParticipantes($idRaffle);
+
+    $participantsString = buscaStringParticipantes($numbers,$jsonParticipants);
+
+
+    /// CAPTURA FOOTER DE PAGAMENTO
+    $footer = "";
+    if($footerRaffle == null || trim($footerRaffle) == ''){
+        $footer = buscaFooterLoja($idStore);
+
+    }else{
+        $footer = $footerRaffle;
+    }
+
+
+    $stringLista = 
+    "{$labelGroup}".PHP_EOL.
+    "{$referenceRaffle}".PHP_EOL.PHP_EOL.
+    "🔥  *VALOR: R$ {$priceBRL} por número.*".PHP_EOL.
+    "{$awardsString}".PHP_EOL.
+    "{$instructions}".PHP_EOL.
+    PHP_EOL.
+    "_*REGRAS NA DESCRIÇÃO DO GRUPO*_".PHP_EOL.
+    "{$participantsString}".PHP_EOL.
+    PHP_EOL.
+    "{$footer}";
+
+    return $stringLista;
+}
+
+function buscaSorteioAtivo($idGroup){
+    global $db;
+    /// PESQUISA POR SORTEIO ATIVO
+    $sql = "SELECT idRaffle, numbers, referenceCode, price, instructions, footer, percentageNotify, flatNotify, buyLimit FROM raffles WHERE idGroup = '{$idGroup}' AND `status` = 1;";
+    if(!$result = mysqli_query($db,$sql)){
+        http_response_code(500);
+        die(json_encode(['ref' => 7, 'debug' => mysqli_error($db)]));
+    }
+    if(mysqli_num_rows($result) < 1) die(json_encode(['ref' => 8]));
+
+    return mysqli_fetch_assoc($result);
+}
+
+function buscaGrupo($phoneId){
+    global $db;
+
+    /// BUSCA GRUPO
+    $sql = "SELECT idGroup, botStatus, status, adminPhones, label, idStore FROM groups WHERE phoneId = '{$phoneId}';";
+    if(!$result = mysqli_query($db,$sql)) error('Falha ao buscar grupo');
+    if(mysqli_num_rows($result) < 1) error('Grupo não encontrado');
+    return mysqli_fetch_assoc($result);
+
+}
+
+function buscaReferenciaGrupo($idGroup){
+    global $db;
+
+    $sql = "SELECT 
+    cGroups.label as cGroupLabel,
+    cGroups.referenceCode as cGroupRef,
+
+    stores.label as storeLabel,
+    stores.referenceCode as storeRef,
+
+    groups.label as label,
+    groups.referenceCode as ref
+
+    FROM cGroups
+    INNER JOIN stores USING (idCGroup)
+    INNER JOIN groups USING (idStore)
+    WHERE groups.idGroup = '{$idGroup}';";
+
+    if(!$result = mysqli_query($db,$sql)) error('Falha ao buscar referências do grupo');
+
+    return mysqli_fetch_assoc($result);
+
+}
+
+function buscaStringPremios($idRaffle){
+    global $db;
+
+    $awardsString = '';
+    $sql = "SELECT description, referenceCode FROM awards WHERE idRaffle = '{$idRaffle}' ORDER BY referenceCode ASC;";
+    if(!$result = mysqli_query($db,$sql)){
+        error('Falha ao buscar prêmios');
+    }
+    if(mysqli_num_rows($result) < 1) error('Nenhum prêmio cadastrado');
+
+    while($row = mysqli_fetch_assoc($result)){
+        $awardsString .= PHP_EOL ."*{$row['referenceCode']}º Prêmio:*". PHP_EOL ."{$row['description']}" . PHP_EOL;
+    }
+
+    return $awardsString;
+}
+function buscaInstrucaoDaLoja($idStore){
+    global $db;
+
+    $sql = "SELECT instructions FROM stores WHERE idStore = '{$idStore}';";
+    if(!$result = mysqli_query($db,$sql)) error('Falha ao buscar instruções da loja');
+
+    if(mysqli_num_rows($result) < 1) return '*--*';
+
+    $row = mysqli_fetch_assoc($result);
+    $instructions = $row['instructions'];
+
+    return $instructions;
+}
+function buscaParticipantes($idRaffle){
+    global $db;
+
+    $jsonParticipants = [];
+    $sql = "SELECT name, paid, drawnNumber, phoneId FROM participants WHERE idRaffle = '{$idRaffle}' ORDER BY drawnNumber ASC;";
+    if(!$result = mysqli_query($db,$sql)) error('Falha ao buscar participantes');
+
+    while($row = mysqli_fetch_assoc($result)){
+        $jsonParticipants[strval($row['drawnNumber'])] = $row;
+    }
+
+    return $jsonParticipants;
+}
+function buscaFooterLoja($idStore){
+    global $db;
+
+    /// busca instrução da loja
+    $sql = "SELECT footer FROM stores WHERE idStore = '{$idStore}';";
+    if(!$result = mysqli_query($db,$sql)) error('Falha ao buscar rodapé da loja');
+
+    if(mysqli_num_rows($result) < 1) return '*--*';
+    $row = mysqli_fetch_assoc($result);
+
+    return $row['footer'];
+}
+
+function buscaUltimosNumeros($numbers,$jsonParticipants){
+    $lastNumbersString = "";
+    for( $index = 1; $index <= $numbers; $index++){
+        $drawnNumber = $index < 10 ? "0{$index}" : $index;
+        if(!isset($jsonParticipants[strval($index)])){
+            $lastNumbersString .= $drawnNumber . PHP_EOL ;
+        }
+    }
+    return $lastNumbersString;
+}
+
+function buscaStringParticipantes($numbers,$jsonParticipants){
+    $participantsString = "";
+    for( $index = 1; $index <= $numbers; $index++){
+        $drawnNumber = $index < 10 ? "0{$index}" : $index;
+        $participantsString .= PHP_EOL ."{$drawnNumber} - ";
+        if(isset($jsonParticipants[strval($index)])){
+            $participant = $jsonParticipants[strval($index)];
+            $participantName = explode(' ',$participant['name'])[0];
+            $participantPhone = substr($participant['phoneId'],-4);
+            $participantsString .= "{$participantName} - ..._{$participantPhone}_";
+        }
+    }
+    return $participantsString;
+}
