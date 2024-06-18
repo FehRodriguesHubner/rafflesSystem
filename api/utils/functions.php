@@ -268,7 +268,7 @@ function buscaGrupo($phoneId){
     global $db;
 
     /// BUSCA GRUPO
-    $sql = "SELECT g.idGroup, g.botStatus, g.status, g.adminPhones, g.label, g.idStore, cg.showPaymentConfirm FROM groups g INNER JOIN cGroup cg USING(idCGroup) WHERE g.phoneId = '{$phoneId}';";
+    $sql = "SELECT g.idGroup, g.botStatus, g.status, g.adminPhones, g.label, g.idStore, cg.showPaymentConfirm FROM groups g INNER JOIN stores s USING(idStore) INNER JOIN cGroups cg USING(idCGroup) WHERE g.phoneId = '{$phoneId}';";
     if(!$result = mysqli_query($db,$sql)) error('Falha ao buscar grupo');
     if(mysqli_num_rows($result) < 1) error('Grupo não encontrado');
     return mysqli_fetch_assoc($result);
@@ -383,4 +383,12 @@ function buscaStringParticipantes($numbers,$jsonParticipants,$showPaymentConfirm
         }
     }
     return $participantsString;
+}
+
+function validate($arrayValidate){
+    foreach($arrayValidate as $input){
+        if($input == null){
+            error('Verifique os dados informados e tente novamente.',400);
+        }
+    }
 }
