@@ -62,7 +62,8 @@ $name = $row['name'];
 $_SESSION['idUser'] = $idUser;
 $_SESSION['name'] = $name;
 $_SESSION['email'] = $email;
-$_SESSION['email'] = $email;
+
+$_SESSION['idCGroup'] = $envIdUser === $idUser ? $envIdCGroup : null;
 
 // Fechar a declaração
 mysqli_stmt_close($stmt);

@@ -1,7 +1,10 @@
 <?php
 
 require_once __DIR__ . '/../../config/init-config.php';
-
+if(isset($_SESSION['idCGroup'])){
+    header('location:'. $url . 'grupos-comerciais/acessar/'. $_SESSION['idCGroup']);
+    die();
+}
 ?>
 
 <!DOCTYPE html>
