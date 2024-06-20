@@ -15,19 +15,32 @@ $label = $json['label'];
 $nameContact = $json['nameContact'];
 $numberContact = $json['numberContact'];
 $showPaymentConfirm = strval($json['showPaymentConfirm']);
+$idInstance = $json['idInstance'];
 
-if($idCGroup == null || $label == null){
-    http_response_code(400);
-    die();
-}
+validate([
+    $idCGroup,
+    $label,
+    $idInstance
+]);
 
-$sql = "UPDATE cGroups SET label = ?, nameContact = ?, numberContact = ?, showPaymentConfirm = ? WHERE idCGroup = ?";
+// valida instância
+$instance = buscaDadosInstancia($idInstance);
+if($instance['idInstance'] == null) error('Instância não encontrada');
+
+$zApiIdInstancia = $instance['zApiIdInstancia'];
+$zApiTokenInstancia = $instance['zApiTokenInstancia'];
+$zApiSecret = $instance['zApiSecret'];
+
+mysqli_begin_transaction($db);
+
+
+$sql = "UPDATE cGroups SET label = ?, nameContact = ?, numberContact = ?, showPaymentConfirm = ?, idInstance = ? WHERE idCGroup = ?";
 
 $stmt = mysqli_prepare($db, $sql);
 
 if ($stmt) {
     // Associação de parâmetros
-    mysqli_stmt_bind_param($stmt, "sssis", $label,$nameContact,$numberContact,$showPaymentConfirm,$idCGroup);
+    mysqli_stmt_bind_param($stmt, "sssiss", $label,$nameContact,$numberContact,$showPaymentConfirm,$idInstance,$idCGroup);
     // Execução da consulta
     if (!mysqli_stmt_execute($stmt)) {
         http_response_code(500);
@@ -38,7 +51,20 @@ if ($stmt) {
     http_response_code(500);
     die(json_encode(['message' => 'Erro ao efetuar atualização', 'debug' => mysqli_error($db)]));
 }
-http_response_code(200);
-die();
+
+$status = verificaStatusZApi($zApiIdInstancia,$zApiTokenInstancia,$zApiSecret);
+if($status['error']) error('Instância inválida');
+
+
+if($status['ok'] != true) {
+    error('Instância não conectada com o Whatsapp ou sem conexão com a internet');
+};
+
+$resultRecive       = atualizarWebhookZApiReceber($zApiIdInstancia,$zApiTokenInstancia,$zApiSecret);
+$resultDesconectar  = atualizarWebhookZApiDesconectar($zApiIdInstancia,$zApiTokenInstancia,$zApiSecret);
+
+mysqli_commit($db);
+
+success(['message' => 'Atualização do Grupo Comercial concluída!','debug' => ['recive' => $resultRecive , 'desconectar' => $resultDesconectar]]);
 
 ?>

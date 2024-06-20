@@ -29,6 +29,10 @@ CREATE TABLE instances(
     FOREIGN KEY (idCGroup) REFERENCES cGroups(idCGroup)
 );
 
+ALTER TABLE cGroups ADD COLUMN idInstance VARCHAR(36);
+
+ALTER TABLE cGroups
+ADD CONSTRAINT fk_cGroups_instances FOREIGN KEY (idInstance) REFERENCES instances(idInstance);
 
 CREATE TABLE stores(
     idStore varchar(36) primary key,

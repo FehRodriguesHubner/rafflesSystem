@@ -46,7 +46,12 @@ if(mysqli_num_rows($result) < 1){
 $row = mysqli_fetch_assoc($result);
 $groupPhoneId = $row['phoneId'];
 
+$group = buscaGrupo($groupPhoneId);
+
+$zApiIdInstancia = $group['zApiIdInstancia'];
+
 $retorno = sendReq($url."api/webhook/reservarNumero.php",[
+    "instanceId" => $zApiIdInstancia,
     "phone" => $groupPhoneId,
     "messageId" => "null",
     "participantPhone" => $phoneId,
@@ -57,9 +62,10 @@ $retorno = sendReq($url."api/webhook/reservarNumero.php",[
     "isGroup"=> true
 ]);
 
-
-http_response_code($retorno['status']);
-die(json_encode($retorno));
-
+if($retorno['status'] == 408 || $retorno['status'] == 200){
+    success('Mensagem enviada com sucesso');
+} else {
+    error($retorno['response'],$retorno['status']);
+}
 
 ?>

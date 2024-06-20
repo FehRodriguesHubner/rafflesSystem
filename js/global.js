@@ -694,3 +694,184 @@ async function populateSelect(results,targetInput,placeholder){
         targetInput.append(option);
     }
 }
+
+function renderRequired(){
+    $('[id^="input-"]').each(function(){
+        if($(this).attr('data-optional') != 'true'){
+            const inputGroup = $(this).closest('.input-group');
+
+            const label = inputGroup.find(' > label');
+
+            if(label.attr('data-required') == 'true') return;
+
+            label.attr('data-required',true);
+            label.html(`<b>${label.text()}*</b>`); 
+        }
+    });
+}
+
+const FIELD_TYPE_RADIO          = 'radio';
+const FIELD_TYPE_SELECT         = 'select';
+const FIELD_TYPE_TEXTAREA       = 'textarea';
+const FIELD_TYPE_TEXT           = 'text';
+const FIELD_TYPE_MONEY          = 'money';
+const FIELD_TYPE_PLACA_CARRO    = 'placaCarro';
+const FIELD_TYPE_PHONE          = 'phone';
+
+async function renderInput(campo,values = null){
+    const key = campo.key;
+
+    const type = campo.type;
+    const content = campo.content;
+
+    switch(type){
+        case FIELD_TYPE_RADIO:
+            $('#inputs-row').append(getRadioHTML(campo));
+            console.log(values);
+            // valor
+            if(values == null) break;
+            if(values[campo.key] == null) break;
+            console.log(campo.key,$(`[name="input-${campo.key}"][value="${values[campo.key]}"]`));
+            $(`[name="input-${campo.key}"][value="${values[campo.key]}"]`).prop('checked',true).change();
+                
+            break;
+
+        case FIELD_TYPE_SELECT:
+            $('#inputs-row').append(getSelectHTML(campo));
+
+            // valor
+            if(values == null) break;
+            if(values[campo.key] == null) break;
+            $(`#input-${campo.key}`).val(values[campo.key]);
+
+            break;
+
+        case FIELD_TYPE_TEXTAREA:
+            $('#inputs-row').append(getTextareaHTML(campo));
+
+            // valor
+            if(values == null) break;
+            if(values[campo.key] == null) break;
+            $(`#input-${campo.key}`).val(values[campo.key]);
+
+            break;
+
+        case FIELD_TYPE_MONEY:
+            $('#inputs-row').append(getTextHTML(campo));
+            
+            // valor
+            if(values == null) break;
+            if(values[campo.key] == null) break;
+            $(`#input-${campo.key}`).val(parseFloat(values[campo.key]).toLocaleString('pt-br',{minimumFractionDigits: 2}));
+
+            break;
+
+        case FIELD_TYPE_PLACA_CARRO:
+            campo.length = 7;
+            $('#inputs-row').append(getTextHTML(campo));
+            
+            // valor
+            if(values == null) break;
+            if(values[campo.key] == null) break;
+            $(`#input-${campo.key}`).val(values[campo.key]);
+
+            break;
+
+        default:
+            $('#inputs-row').append(getTextHTML(campo));
+
+            // valor
+            if(values == null) break;
+            if(values[campo.key] == null) break;
+            $(`#input-${campo.key}`).val(values[campo.key]);
+
+            break;
+
+    }
+
+    if(campo.required === false || campo.required == 0) $(`#input-${campo.key}`).attr('data-optional','true');
+    if(campo.type != null) {
+        $(`#input-${campo.key}`).attr('data-type',campo.type);
+        $(`#input-${campo.key}`).attr('data-mask',campo.type);
+    } 
+    if(campo.placeholder != null) {
+        $(`#input-${campo.key}`).attr('placeholder',campo.placeholder);
+    }
+
+}
+
+//DEFAULT INPUT GROUP TEMPLATE
+function getInputGroupHTML(label, inputHTML) {
+    return `
+        <div class="col-12">
+            <div class="input-group mb-3">
+                <label>${label}</label>
+                <div class="w-100">
+                    <div class="input-container">
+                        ${inputHTML}
+                        <small class="input-message"></small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+//INPUT RADIO TEMPLATE
+function getRadioHTML(campo){
+
+    const content = campo.content != null ? campo.content : [{label:'Sim',value:1},{label:'Não',value:0}];
+    
+    var inputHTML = "";
+    var checked = true;
+    for(let option of content){
+        inputHTML += getRadioFieldHTML(campo.key,option.value,checked,option.label);
+        checked = false;
+    }
+
+    return getInputGroupHTML(campo.label, inputHTML);
+
+    function getRadioFieldHTML(key, value, isChecked, labelText) {
+        return `
+            <label class="rb-container">
+                <input ${isChecked ? 'checked' : ''} id="input-${key}${value ? '-' + value : ''}" value="${value}" type="radio" name="input-${key}" />
+                ${labelText}
+                <span class="rb-checkmark"></span>
+            </label>
+        `;
+    }
+    
+}
+
+//INPUT SELECT TEMPLATE
+function getSelectHTML(campo) {
+    
+    const content = campo.content != null ? campo.content : [{label:'Sim',value:1},{label:'Não',value:0}];
+    
+    var options = "";
+    for(let option of content){
+        options += getSelectOptionHTML(option.label, option.value);
+    }
+    const inputHTML = `<select class="input-default" id="input-${campo.key}">${options}</select>`;
+
+    return getInputGroupHTML(campo.label, inputHTML);
+
+    function getSelectOptionHTML(labelText, value) {
+        return `
+            <option value="${value}">${labelText}</option>
+        `;
+    }
+}
+
+//INPUT TEXTAREA TEMPLATE
+function getTextareaHTML(campo) {
+    const inputHTML = `<textarea maxlength="500" id="input-${campo.key}" type="text" class="input-default"></textarea>`;
+    return getInputGroupHTML(campo.label,inputHTML);
+}
+
+//INPUT TEXT 
+function getTextHTML(campo){
+    console.log(campo.key,campo.length)
+    const inputHTML = `<input maxlength="${campo.length > 0 ? campo.length : 50}" id="input-${campo.key}" type="text" class="input-default">`;
+    return getInputGroupHTML(campo.label,inputHTML);
+}

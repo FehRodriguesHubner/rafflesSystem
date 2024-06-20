@@ -16,10 +16,9 @@ $nameContact = $json['nameContact'];
 $numberContact = $json['numberContact'];
 $showPaymentConfirm = strval($json['showPaymentConfirm']);
 
-if($label == null){
-    http_response_code(400);
-    die();
-}
+validate([
+    $label
+]);
 
 $getRefCode = capturaSequencial('cGroups',1,1);
 if(!$getRefCode['success']){
@@ -63,7 +62,6 @@ if ($stmt) {
     die(json_encode(['message' => 'Erro ao efetuar atualização', 'debug' => mysqli_error($db)]));
 }
 
-http_response_code(200);
-die();
+success();
 
 ?>

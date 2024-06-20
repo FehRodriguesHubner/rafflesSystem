@@ -66,60 +66,6 @@ function capturaSequencial($type,$typeId,$id){
     return (['success' => true, 'referenceCode' => intval($row['referenceCode'])]);
 }
 
-
-function sendZAPIReq($payload,$encode = true)
-{
-    global $messageEndpoint, $clientToken;
-    
-    if($messageEndpoint == null){
-        return false;
-    }
-
-    $url = $messageEndpoint;
-    $data = $payload;
-
-    
-    $jsonData = $encode ? json_encode($data) : $data;
-    $ch = curl_init($url);
-    
-    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-        "Content-Type: application/json",
-        "Client-Token: {$clientToken}"
-    ));
-
-    $response = curl_exec($ch);
-
-    if ($response === false) {
-        echo 'cURL Error: ' . curl_error($ch);
-    }
-
-    
-
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-    curl_close($ch);
-    
-    $responseData = json_decode($response, true);
-
-    if ($responseData) {
-        return [
-            'status' => $httpCode,
-            'response' => $responseData
-        ];
-    } else {
-        return [
-            'status' => $httpCode,
-            'url' => $url,
-            'response' => [
-                'message' => "Ocorreu um erro ao verificar o retorno da solicitação"
-            ]
-        ];
-    }
-}
-
 function sendReq($endpoint,$payload, $method = "POST", $timeout = 10, $headersArray = [])
 {
 
@@ -142,11 +88,21 @@ function sendReq($endpoint,$payload, $method = "POST", $timeout = 10, $headersAr
 
     $response = curl_exec($ch);
 
-    if ($response === false) {
+    $curlError = curl_error($ch);
+    if ( curl_errno($ch) == CURLE_OPERATION_TIMEDOUT) {
+        curl_close($ch);
+        return [
+            'status' => 408,
+            'response' => [
+                'message' => "Tempo limite atingido."
+            ]
+        ];
+    } else if ($curlError){
+        curl_close($ch);
         return [
             'status' => 200,
             'response' => [
-                'message' => "Confira a reserva na listagem de participantes"
+                'message' => "Ocorreu um erro na reserva. Tente novamente."
             ]
         ];
     }
@@ -268,7 +224,21 @@ function buscaGrupo($phoneId){
     global $db;
 
     /// BUSCA GRUPO
-    $sql = "SELECT g.idGroup, g.botStatus, g.status, g.adminPhones, g.label, g.idStore, cg.showPaymentConfirm FROM groups g INNER JOIN stores s USING(idStore) INNER JOIN cGroups cg USING(idCGroup) WHERE g.phoneId = '{$phoneId}';";
+    $sql = "SELECT 
+        g.idGroup, 
+        g.botStatus, 
+        g.status, 
+        g.adminPhones, 
+        g.label, 
+        g.idStore, 
+        cg.showPaymentConfirm,
+        cg.idInstance,
+        i.zApiIdInstancia
+        FROM groups g 
+        INNER JOIN stores s USING(idStore) 
+        INNER JOIN cGroups cg USING(idCGroup) 
+        LEFT JOIN instances i USING (idInstance)
+        WHERE g.phoneId = '{$phoneId}';";
     if(!$result = mysqli_query($db,$sql)) error('Falha ao buscar grupo');
     if(mysqli_num_rows($result) < 1) error('Grupo não encontrado');
     return mysqli_fetch_assoc($result);
@@ -379,7 +349,7 @@ function buscaStringParticipantes($numbers,$jsonParticipants,$showPaymentConfirm
             if($showPaymentConfirm == 1){
                 $confirmPayment = $participant['paid'] == 1 ? "🟢 " : "🟡 ";
             }
-            $participantsString .= "{$confirmPayment}{$participantName} - ..._{$participantPhone}_";
+            $participantsString .= "{$participantName} - ..._{$participantPhone}_ {$confirmPayment}";
         }
     }
     return $participantsString;
@@ -391,4 +361,195 @@ function validate($arrayValidate){
             error('Verifique os dados informados e tente novamente.',400);
         }
     }
+}
+
+function buscaInstancias($idCGroup){
+    global $db;
+    $sql = "SELECT * FROM instances WHERE idCGroup = '{$idCGroup}' order by orderNumber asc;";
+    $result = mysqli_query($db,$sql);
+    $rows = [];
+    while($row = mysqli_fetch_assoc($result) ){
+        array_push($rows,$row);
+    }
+    return $rows;
+}
+function buscaDadosInstancia($idInstance){
+    global $db;
+    $sql = "SELECT * FROM instances WHERE idInstance = '{$idInstance}';";
+    if(!$result = mysqli_query($db,$sql)) error('Falha ao buscar dados da instância');
+    $row = mysqli_fetch_assoc($result);
+    return $row;
+}
+
+function endpointZApi($zApiIdInstancia,$zApiTokenInstancia){
+    return "https://api.z-api.io/instances/{$zApiIdInstancia}/token/{$zApiTokenInstancia}";
+}
+
+function atualizarWebhookZApiReceber($zApiIdInstancia,$zApiTokenInstancia,$zApiSecret,$clean = false){
+    global $url, $LOCAL_ENV;
+
+    $action = '/update-webhook-received';
+    $zApiUri = endpointZApi($zApiIdInstancia,$zApiTokenInstancia);
+
+    $endpoint = $zApiUri . $action;
+    if($clean){
+        $webhookUrl = "";
+    }else{
+        //$webhookUrl = ;
+        $webhookUrl = $LOCAL_ENV ? "https://meugrupo.agenciagas.com.br/api/webhook/reservarNumero.php" : "{$url}api/webhook/reservarNumero.php";
+    }
+
+    $result = sendReq(
+        $endpoint,
+        [
+            'value' => $webhookUrl
+        ],
+        'PUT',
+        30,
+        ["Client-Token: {$zApiSecret}"]
+    );
+
+    if($result['status'] != 200 || (isset($result['response']['error']) && $result['response']['error'] != null) ) error('Falha ao definir Webhook. Por favor, revise os dados da instância selecionada');
+
+    return true;
+
+}
+
+function atualizarWebhookZApiDesconectar($zApiIdInstancia,$zApiTokenInstancia,$zApiSecret,$clean = false){
+    global $url, $LOCAL_ENV;
+
+    $action = '/update-webhook-disconnected';
+    $zApiUri = endpointZApi($zApiIdInstancia,$zApiTokenInstancia);
+
+    $endpoint = $zApiUri . $action;
+
+    if($clean){
+        $webhookUrl = "";
+    }else{
+        $webhookUrl = $LOCAL_ENV ? "https://meugrupo.agenciagas.com.br/api/webhook/desconectarInstancia.php" : "{$url}api/webhook/desconectarInstancia.php";
+
+    }
+
+    $result = sendReq(
+        $endpoint,
+        [
+            'value' => $webhookUrl
+        ],
+        'PUT',
+        30,
+        ["Client-Token: {$zApiSecret}"]
+    );
+
+    if($result['status'] != 200 || (isset($result['response']['error']) && $result['response']['error'] != null)) error('Falha ao definir Webhook de desconexão. Por favor, revise os dados da instância selecionada');
+
+    return true;
+
+}
+
+function capturaDadosGrupoZApi($link,$zApiIdInstancia,$zApiTokenInstancia,$zApiSecret){
+    global $url;
+    
+    $action = '/group-invitation-metadata' . "?url=" . urlencode($link);
+    $zApiUri = endpointZApi($zApiIdInstancia,$zApiTokenInstancia);
+
+    $endpoint = $zApiUri . $action;
+
+    $result = sendReq(
+        $endpoint,
+        null,
+        'GET',
+        30,
+        ["Client-Token: {$zApiSecret}"]
+    );
+
+    if($result['status'] != 200 || (isset($result['response']['error']) && $result['response']['error'] != null)) error('Falha ao buscar dados do Grupo. Por favor, revise os dados da instância selecionada');
+
+    return $result['response'];
+
+}
+
+function enviarMensagemZApi($payload,$phoneId){
+
+    $group = buscaGrupo($phoneId);
+    $idInstance = $group['idInstance'];
+
+    $instance = buscaDadosInstancia($idInstance);
+    if($instance['idInstance'] == null) error('Instância não encontrada');
+
+    $zApiIdInstancia = $instance['zApiIdInstancia'];
+    $zApiTokenInstancia = $instance['zApiTokenInstancia'];
+    $zApiSecret = $instance['zApiSecret'];
+
+    $action = '/send-text';
+    $zApiUri = endpointZApi($zApiIdInstancia,$zApiTokenInstancia);
+
+    $endpoint = $zApiUri . $action;
+
+    $result = sendReq($endpoint,$payload,'POST',10,["Client-Token: {$zApiSecret}"]);
+    if($result['status'] != 200 || isset($result['response']['error'])){
+        error([
+            'message' => 'Falha ao enviar mensagem. Por favor, revise os dados da instância',
+            'debug' => $result
+        ]);
+    }
+
+    return $result;
+
+}
+
+function verificaStatusZApi($zApiIdInstancia,$zApiTokenInstancia,$zApiSecret){
+
+    $action = '/status';
+    $zApiUri = endpointZApi($zApiIdInstancia,$zApiTokenInstancia);
+
+    $endpoint = $zApiUri . $action;
+
+    $result = sendReq($endpoint,null,'GET',10,["Client-Token: {$zApiSecret}"]);
+    if($result['status'] != 200){
+        return ['error' => true, 'response' => $result['response']];
+    }
+
+    if(empty($result['response']['connected']) || empty($result['response']['smartphoneConnected'])){
+        return ['ok' => false];
+    };
+
+    $result['response']['error'] = false;
+    $result['response']['ok'] = true;
+
+    return $result['response'];
+
+}
+
+function buscarGCPorLoja($idStore){
+    global $db;
+
+    /// BUSCA GRUPO
+    $sql = "SELECT 
+        cg.showPaymentConfirm,
+        cg.idInstance,
+        i.zApiIdInstancia
+        FROM stores s 
+        INNER JOIN cGroups cg USING(idCGroup) 
+        LEFT JOIN instances i USING (idInstance)
+        WHERE s.idStore = '{$idStore}';";
+    if(!$result = mysqli_query($db,$sql)) error('Falha ao buscar GC');
+    if(mysqli_num_rows($result) < 1) error('GC não encontrado');
+    return mysqli_fetch_assoc($result);
+}
+function buscarGCPorGrupo($idGroup){
+    global $db;
+
+    /// BUSCA GRUPO
+    $sql = "SELECT 
+        cg.showPaymentConfirm,
+        cg.idInstance,
+        i.zApiIdInstancia
+        FROM groups g
+        INNER JOIN stores s USING(idStore) 
+        INNER JOIN cGroups cg USING(idCGroup) 
+        LEFT JOIN instances i USING (idInstance)
+        WHERE g.idGroup = '{$idGroup}';";
+    if(!$result = mysqli_query($db,$sql)) error('Falha ao buscar GC');
+    if(mysqli_num_rows($result) < 1) error('GC não encontrado');
+    return mysqli_fetch_assoc($result);
 }

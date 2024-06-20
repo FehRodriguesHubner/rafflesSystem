@@ -3,9 +3,9 @@ const pageName = 'Grupos Comerciais';
 const campos = [
     //{label:'ID', key: 'idCGroup' },
     {label:'Nome Grupo', key: 'label'},
-    {label:'Nome Contato', key: 'nameContact'},
-    {label:'Exibir Confirmação de Pagamento na LISTA', key: 'showPaymentConfirm'},
-    {label:'Número Contato', key: 'numberContact'}
+    {label:'Exibir Confirmação de Pagamento na LISTA', key: 'showPaymentConfirm', type: FIELD_TYPE_RADIO},
+    {label:'Nome Contato', key: 'nameContact', required: false},
+    {label:'Número Contato', key: 'numberContact', type: FIELD_TYPE_PHONE, required: false},
 ];
 
 window.addEventListener('DOMContentLoaded', async function () {
@@ -16,6 +16,26 @@ window.addEventListener('DOMContentLoaded', async function () {
     }]);
     renderPageActive(pageSlug);
     ///////////////////////////
+    try{
+        const id = $('#get_id').val();
+        let jsonResponse = await fetchReq(`instancias/list.php?id=${id}`);
+        const instances = jsonResponse.results;
+        instances.splice(0,0,{label:'Selecione uma instância',value:''});
+        if(instances.length > 0){
+            for(let instance of instances){
+                instance.value = instance.idInstance;
+            }
+
+            campos.splice(2,0,{
+                label:'Instância z-api', 
+                key: 'idInstance',
+                type: FIELD_TYPE_SELECT, content: instances
+            });
+        }
+
+    }catch(ex){return;}
+    
+    //////////////////////////
 
     renderDefaultForm();
 
@@ -57,22 +77,9 @@ $(function(){
 
         // REQUISIÇÃO
         popupLoading();
-
-        let fetchResponse = await fetch(`${apiUrl}/${pageSlug}/edit.php`, {
-            method: 'PUT',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body:JSON.stringify(jsonCampos)
-        });
-
-        if(fetchResponse.status != 200){
-            dispatchPopup('error','Ops! ocorreu um erro.','Não foi possível ao verificar o resultado de sua ação. Por favor, tente novamente mais tarde.');
-
-            return false;
-
-        }
+        try{
+            await fetchReq(`${pageSlug}/edit.php`, jsonCampos);
+        }catch(except){ console.log(except); return;}
 
         dispatchPopup('success','Pronto!','Atualização realizada com sucesso.').then(function(){
             history.back();
@@ -144,89 +151,12 @@ async function renderDefaultForm(){
     
     
     for(let campo of campos){
-        // adiciona campo
-        switch(campo.key){
-            case 'showPaymentConfirm':
-
-                $('#inputs-row').append(`
-                    <div class="col-12">
-                        <div class="input-group mb-3">
-                            <label for="input-${campo.key}">${campo.label}</label>
-                            <div class="w-100">
-                                <div class="input-container">
-
-                                    <label class="rb-container">
-                                        <input checked id="input-${campo.key}" value="1" type="radio" name="input-${campo.key}" />
-                                        Ativado
-                                        <span class="rb-checkmark"></span>
-                                    </label>
-                                    
-                                    <label class="rb-container">
-                                        <input id="input-${campo.key}-2" value="0" type="radio" name="input-${campo.key}" />
-                                        Desativado
-                                        <span class="rb-checkmark"></span>
-                                    </label>
-
-                                    <small class="input-message"></small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `);
-
-            break;
-
-            default:
-                $('#inputs-row').append(`
-                    <div class="col-12">
-                        <div class="input-group mb-3">
-                            <label for="input-${campo.key}">${campo.label}</label>
-                            <div class="w-100">
-                                <div class="input-container">
-                                    <input maxlength="50" id="input-${campo.key}" type="text" class="input-default">
-                                    <small class="input-message"></small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `);
-                break;
-        }
-
-        // define valor do campo
-        switch(campo.key){
-            case 'showPaymentConfirm':
-                if(result[campo.key] == 1){
-                    $(`#input-${campo.key}`).prop('checked',true);
-                    
-                }else{
-                    $(`#input-${campo.key}-2`).prop('checked',true);
-                }
-                break;
-
-            default:
-                $(`#input-${campo.key}`).val(result[campo.key]);
-                break;
-        }
+        renderInput(campo,result);
         
     }
 
-    $('#input-numberContact').attr('data-mask',"phone").attr('data-type','phone').attr('data-optional','true');
-    $('#input-nameContact').attr('data-optional','true');
-
     maskInputs();
 
-    $('[id^="input-"]').each(function(){
-        if($(this).attr('data-optional') != 'true'){
-            const inputGroup = $(this).closest('.input-group');
-
-            const label = inputGroup.find(' > label');
-
-            if(label.attr('data-required') == 'true') return;
-
-            label.attr('data-required',true);
-            label.html(`<b>${label.text()}*</b>`); 
-        }
-    });
+    renderRequired();
     
 }

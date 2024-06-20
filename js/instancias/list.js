@@ -273,7 +273,9 @@ async function renderDefault(){
                     Download PDF `,
                     className: 'btn-warning fw-bold'
                 }
-            ]
+            ],
+            order: [[1, 'asc']]
+
         });
     
 

@@ -18,12 +18,21 @@ $triggerMessage = $json['triggerMessage'];
 $redirectLink = $json['redirectLink'];
 $adminPhones = $json['adminPhones'];
 
-$endpoint = $groupEndpoint;
-$endpoint .= "?url=" . urlencode($link);
+validate([
+    $idGroup
+]);
 
-$result = sendReq($endpoint,null,'GET',30,["Client-Token: {$clientToken}"]);
-if($result['status'] != 200 || $result['response']['error'] != null) error('Falha ao capturar dados do Grupo. Por favor, revise o link informado');
-$phoneId = $result['response']['phone'];
+$GC = buscarGCPorGrupo($idGroup);
+$idInstance = $GC['idInstance'];
+$instance = buscaDadosInstancia($idInstance);
+if($instance['idInstance'] == null) error('Instância não encontrada');
+
+$zApiIdInstancia = $instance['zApiIdInstancia'];
+$zApiTokenInstancia = $instance['zApiTokenInstancia'];
+$zApiSecret = $instance['zApiSecret'];
+
+$dadosGrupo = capturaDadosGrupoZApi($link,$zApiIdInstancia,$zApiTokenInstancia,$zApiSecret);
+$phoneId = $dadosGrupo['phone'];
 
 if ($idGroup == null || $label == null || $phoneId == null || $link == null || $status == null) {
     error(['message'=>'Dados insuficiêntes. Contate o suporte','debug' => [$result,$endpoint]],400);

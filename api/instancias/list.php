@@ -9,13 +9,8 @@ $json = file_get_contents('php://input');
 $json = json_decode($json,true);
 
 ////////////
-
-$sql = "SELECT * FROM instances order by orderNumber asc;";
-$result = mysqli_query($db,$sql);
-$rows = [];
-while($row = mysqli_fetch_assoc($result) ){
-    array_push($rows,$row);
-}
+$idCGroup = $_GET['id'];
+$rows = buscaInstancias($idCGroup);
 
 die(json_encode([
     'results' => $rows

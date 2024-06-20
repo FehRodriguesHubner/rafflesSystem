@@ -16,6 +16,7 @@ $req = $json;
 
 /// VARIÁVEIS
 $phoneId            = mysqli_real_escape_string($db,$req['phone']);
+$zApiIdInstanciaReq    = mysqli_real_escape_string($db,$req['instanceId']);
 $messageId          = $req['messageId'];
 
 $participantPhoneId = mysqli_real_escape_string($db,$req['participantPhone']);
@@ -57,13 +58,25 @@ foreach($arrayMsg as $word){
 
 if($msgHasNumber === false) error('Sem número',400);
 
+/// BUSCA GRUPO
+$row = buscaGrupo($phoneId);
+
+$idGroup = $row['idGroup'];
+$botStatus = $row['botStatus'];
+$statusGroup = $row['status'];
+$adminPhones = $row['adminPhones'];
+$labelGroup = $row['label'];
+$idStore = $row['idStore'];
+$zApiIdInstancia = $row['zApiIdInstancia'];
+if($zApiIdInstancia != $zApiIdInstanciaReq) error('Instância inválida');
+
 /// TESTA MENSAGEM INPUTADA (TEXTOMATRIZ)
 if(
     $msgIsNumber === false
 ){
     // enviando retorno de mensagem incorreta
     sleep(rand(3,8));
-    $reqRes = sendZAPIReq(
+    $reqRes = enviarMensagemZApi(
         [
             "phone" => "{$phoneId}",
             "message" =>    "🚫 Digite na mensagem somente o número desejado. _(Ex: *12*)_".PHP_EOL
@@ -72,7 +85,7 @@ if(
                             "_Se quiser escolher mais números, envie cada um em uma mensagem separada._".PHP_EOL.
                             "📱 _*Se precisa falar com o suporte, utilize o número que está na descrição do grupo.*_",
             "messageId" => "{$messageId}"
-        ]
+        ], $phoneId
     );
     
     http_response_code(400);
@@ -86,15 +99,6 @@ if(!is_numeric($inputMessage)){
 
 $chosenNumber = intval($inputMessage);
 
-/// BUSCA GRUPO
-$row = buscaGrupo($phoneId);
-
-$idGroup = $row['idGroup'];
-$botStatus = $row['botStatus'];
-$statusGroup = $row['status'];
-$adminPhones = $row['adminPhones'];
-$labelGroup = $row['label'];
-$idStore = $row['idStore'];
 
 if($botStatus != 1 || $statusGroup != 1) error('Status inativo',400);
 
@@ -125,14 +129,14 @@ $priceBRL = number_format($price, 2, ',', '.');
 if($chosenNumber > $numbers || $chosenNumber <= 0 ){
     // enviando retorno de mensagem incorreta
     sleep(rand(3,8));
-    $reqRes = sendZAPIReq(
+    $reqRes = enviarMensagemZApi(
         [
             "phone" => "{$phoneId}",
             "message" =>    "⚠️ _*Reserva não efetuada! - Número {$chosenNumber}*_".PHP_EOL.
                             "O sorteio atual permite somente números entre 1 e {$numbers}.".PHP_EOL.
                             "Selecione outro número para participar...",
             "messageId"=> "{$messageId}"
-        ]
+        ], $phoneId
     );
     
     http_response_code(400);
@@ -147,7 +151,7 @@ if(!$result = mysqli_query($db,$sql)){
 }
 if(mysqli_num_rows($result) > 0){
     sleep(rand(3,8));
-    $reqRes = sendZAPIReq(
+    $reqRes = enviarMensagemZApi(
         [
             "phone" => "{$phoneId}",
             "message" =>    "🚫 _*Reserva não efetuada!*_".PHP_EOL.
@@ -155,7 +159,7 @@ if(mysqli_num_rows($result) > 0){
                             "O número *{$chosenNumber}* não está mais disponível.".PHP_EOL.
                             "Selecione outro número para participar...",
             "messageId" => "{$messageId}"
-         ]
+        ], $phoneId
     );
     
     http_response_code(400);
@@ -173,14 +177,14 @@ if($buyLimit > 0){
     $participantNumbers = intval($row['num']);
     if($participantNumbers >= $buyLimit){
         sleep(rand(3,8));
-        $reqRes = sendZAPIReq(
+        $reqRes = enviarMensagemZApi(
             [
                 "phone"=> "{$phoneId}",
                 "message"=>     "🚫 _*Reserva não efetuada!*_".PHP_EOL.
                                 PHP_EOL.
                                 "O sorteio atual permite que cada participante selecione no máximo {$buyLimit} número(s).",
                 "messageId"=> "{$messageId}"
-            ]
+            ], $phoneId
         );
         
         http_response_code(400);
@@ -219,12 +223,12 @@ if ($stmt) {
 
 /// NOTIFICA NÚMERO RESERVADO
 sleep(rand(3,12));
-$reqResReservado = sendZAPIReq(
+$reqResReservado = enviarMensagemZApi(
     [
         "phone" => "{$phoneId}",
         "message" => "✅ Número *{$chosenNumber}* reservado para você {$senderName}",
         "messageId"=> "{$messageId}"
-    ]
+    ], $phoneId
 );
 
 /// CAPTURA REFERENCIA DO SORTEIO
@@ -244,7 +248,7 @@ if(count($jsonParticipants) >= $numbers ){
     // notifica admins
     if($adminPhones != null){
         foreach($adminPhones as $adminPhone){
-            $reqRes = sendZAPIReq(
+            $reqRes = enviarMensagemZApi(
                 [
                     "phone"=> "{$adminPhone}",
                     "message"=>     "✅ *Venda finalizada*".PHP_EOL.
@@ -253,7 +257,7 @@ if(count($jsonParticipants) >= $numbers ){
                                     "- Números Vendidos: {$numbers}".PHP_EOL.
                                     PHP_EOL.
                                     "Confira os pagamentos e execute o sorteio."
-                ]
+                ], $phoneId
             );
         }
     }
@@ -320,17 +324,17 @@ $jsonList = [
     "phone" => "{$phoneId}",
     "message"=> $listMsg
 ];
-$reqResList = sendZAPIReq($jsonList);
+$reqResList = enviarMensagemZApi($jsonList,$phoneId);
 if(count($jsonParticipants) >= $numbers ){
 
     $outOfNumbersText = $price > 0 ? "Conferindo aqui os pagamentos e já vamos para o sorteio." : "Conferindo aqui e já vamos para o sorteio.";
 
-    $reqRes = sendZAPIReq(
+    $reqRes = enviarMensagemZApi(
         [
             "phone"=> "{$phoneId}",
             "message"=>     "Números Esgotados".PHP_EOL.
                             $outOfNumbersText
-        ]
+        ], $phoneId
     );
 } else {
     // Calcular a quantidade de números restantes
@@ -338,12 +342,12 @@ if(count($jsonParticipants) >= $numbers ){
     $remaining = $numbers - $sold;
     
     if($remaining == 1){
-        $reqResLastNumbers = sendZAPIReq(
+        $reqResLastNumbers = enviarMensagemZApi(
             [
                 "phone" => "{$phoneId}",
                 "message" =>    "*Último número livre*".PHP_EOL.
                                 "{$lastNumbersString}"
-            ]
+            ], $phoneId
         );
     
     } else
@@ -371,13 +375,13 @@ if(count($jsonParticipants) >= $numbers ){
         }
     
         if($notify === true){
-            $reqResLastNumbers = sendZAPIReq(
+            $reqResLastNumbers = enviarMensagemZApi(
                 [
                     "phone"=> "{$phoneId}",
                     "message"=>     
                         "Últimos números livres".PHP_EOL.
                         "{$lastNumbersString}"
-                ]
+                ], $phoneId
             );
         }
     }

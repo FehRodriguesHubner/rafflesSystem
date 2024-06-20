@@ -28,7 +28,7 @@ $jsonList = [
     "phone" => "{$phoneId}",
     "message"=> $listMsg
 ];
-$reqResList = sendZAPIReq($jsonList);
+$reqResList = enviarMensagemZApi($jsonList,$phoneId);
 
 success($reqResList['response'],$reqResList['status']);
 

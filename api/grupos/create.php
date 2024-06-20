@@ -11,7 +11,7 @@ require_once(__DIR__ . '/../utils/functions.php');
 $json = file_get_contents('php://input');
 $json = json_decode($json,true);
 
-$idStore = $json['id'];
+$idStore = mysqli_real_escape_string($db,$json['id']);
 $label = $json['label'];
 $link = $json['link'];
 $botStatus = "0";
@@ -20,12 +20,18 @@ $adminPhones = $json['adminPhones'];
 $triggerMessage = $json['triggerMessage'];
 $redirectLink = $json['redirectLink'];
 
-$endpoint = $groupEndpoint;
-$endpoint .= "?url=" . urlencode($link);
 
-$result = sendReq($endpoint,null,'GET',30,["Client-Token: {$clientToken}"]);
-if($result['status'] != 200 || $result['response']['error'] != null) error('Falha ao capturar dados do Grupo. Por favor, revise o link informado');
-$phoneId = $result['response']['phone'];
+$GC = buscarGCPorLoja($idStore);
+$idInstance = $GC['idInstance'];
+$instance = buscaDadosInstancia($idInstance);
+if($instance['idInstance'] == null) error('Instância não encontrada');
+
+$zApiIdInstancia = $instance['zApiIdInstancia'];
+$zApiTokenInstancia = $instance['zApiTokenInstancia'];
+$zApiSecret = $instance['zApiSecret'];
+
+$dadosGrupo = capturaDadosGrupoZApi($link,$zApiIdInstancia,$zApiTokenInstancia,$zApiSecret);
+$phoneId = $dadosGrupo['phone'];
 
 if ($idGroup == null || $label == null || $phoneId == null || $link == null || $status == null) {
     error(['message'=>'Dados insuficiêntes. Contate o suporte','debug' => [$result,$endpoint]],400);
