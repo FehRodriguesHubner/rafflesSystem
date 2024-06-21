@@ -12,49 +12,6 @@ require_once(__DIR__ . '/../db/db-config.php');
 require_once(__DIR__ . '/../utils/functions.php');
 require_once(__DIR__ . '/webhook-config.php');
 
-// Check if the $req variable is set
-$req = $json;
-$req['#date'] = date('d/m/Y h:i'); 
-
-$time = time();
-$arr = [];
-$arr[$time] = $req;
-$req = $arr;
-// Convert $req to JSON format
-$jsonData = json_encode($req, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-
-// Get the path to the debug.json file
-$filePath = 'debug.json';
-
-// Check if the file exists
-if (file_exists($filePath)) {
-    // Read existing JSON data from the file
-    $existingData = file_get_contents($filePath);
-    if ($existingData) {
-        // Decode existing JSON data
-        $existingData = json_decode($existingData, true);
-        if (is_array($existingData)) {
-            // Merge new data with existing data
-            $newData = array_merge($existingData, $req);
-            // Convert merged data back to JSON
-            $newJsonData = json_encode($newData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-        } else {
-            // Handle invalid existing data
-            echo "Error: Invalid JSON data found in debug.json.";
-            exit;
-        }
-    } else {
-        // Handle empty existing file
-        $newJsonData = $jsonData;
-    }
-} else {
-    // File doesn't exist, create new JSON data
-    $newJsonData = $jsonData;
-}
-
-// Write the updated JSON data to the file
-file_put_contents($filePath, $newJsonData);
-
 $req = $json;
 
 /// VARIÁVEIS
@@ -78,6 +35,7 @@ if($senderName == null || empty($senderName) || trim($senderName) == ""){
 // VALIDA VARIÁVEIS
 if(
     empty($phoneId) ||
+    empty($zApiIdInstanciaReq) ||
     empty($messageId) ||
     empty($req['text']) || 
     empty($req['text']['message']) ||
@@ -90,6 +48,42 @@ if(
 /// TESTANDO MENSAGEM
 $arrayMsg = explode(' ',$inputMessage);
 if(count($arrayMsg) >= 10) error('Mais de 10 mensagens',400);
+
+// VALIDA ID MENSAGEM NÃO É DUPLICADO
+// Construct the filename based on zApiIdInstanciaReq
+if($messageId != null || $messageId != 'null'){
+
+    $fileName = __DIR__ . '/../../groupCache/'. $zApiIdInstanciaReq . '-send.json';
+    
+    // Check if the file exists
+    if (!file_exists($fileName)) {
+        // File doesn't exist, create a new empty array
+        $data = [];
+    } else {
+        // Read the existing JSON data from the file
+        $data = json_decode(file_get_contents($fileName), true);
+        if (!is_array($data)) {
+            // Handle invalid JSON data
+            error('Json messageId inválido');
+            exit;
+        }
+    }
+    
+    // Check if messageId exists in the array
+    if (in_array($messageId, $data)) {
+        // messageId exists, stop processing
+        error('já existe message id');
+    }
+    
+    // messageId doesn't exist, add it to the array
+    $data[] = $messageId;
+    
+    // Convert the updated array back to JSON
+    $jsonData = json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    
+    // Write the updated JSON data to the file
+    file_put_contents($fileName, $jsonData);
+}
 
 $msgHasNumber = false;
 $msgIsNumber = is_numeric($inputMessage);
