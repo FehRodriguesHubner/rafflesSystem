@@ -12,6 +12,45 @@ require_once(__DIR__ . '/../db/db-config.php');
 require_once(__DIR__ . '/../utils/functions.php');
 require_once(__DIR__ . '/webhook-config.php');
 
+// Check if the $req variable is set
+$req = $json;
+$req['#date'] = date('d/m/Y h:i'); 
+
+// Convert $req to JSON format
+$jsonData = json_encode($req, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
+// Get the path to the debug.json file
+$filePath = 'debug.json';
+
+// Check if the file exists
+if (file_exists($filePath)) {
+    // Read existing JSON data from the file
+    $existingData = file_get_contents($filePath);
+    if ($existingData) {
+        // Decode existing JSON data
+        $existingData = json_decode($existingData, true);
+        if (is_array($existingData)) {
+            // Merge new data with existing data
+            $newData = array_merge($existingData, $req);
+            // Convert merged data back to JSON
+            $newJsonData = json_encode($newData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        } else {
+            // Handle invalid existing data
+            echo "Error: Invalid JSON data found in debug.json.";
+            exit;
+        }
+    } else {
+        // Handle empty existing file
+        $newJsonData = $jsonData;
+    }
+} else {
+    // File doesn't exist, create new JSON data
+    $newJsonData = $jsonData;
+}
+
+// Write the updated JSON data to the file
+file_put_contents($filePath, $newJsonData);
+
 $req = $json;
 
 /// VARIÁVEIS
