@@ -64,7 +64,13 @@ $(function(){
                     erros++
                 }
             }
-            jsonCampos[campo.key] = element.val().trim();
+
+            if(campo.type === FIELD_TYPE_RADIO){
+                jsonCampos[campo.key] = $(`[name="input-${campo.key}"]:checked`).val().trim();
+            }else{
+                jsonCampos[campo.key] = element.val().trim();
+            }
+
         }
         if (erros > 0) {
             dispatchPopup('warning','Atenção', 'Verifique os campos destacados.');
@@ -72,7 +78,6 @@ $(function(){
         }
         const id = $('#get_id').val();
         jsonCampos.id = id;
-        jsonCampos['showPaymentConfirm'] = $('#input-showPaymentConfirm').is(':checked') ? 1 : 0;
 
 
         // REQUISIÇÃO
