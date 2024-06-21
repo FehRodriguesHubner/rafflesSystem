@@ -10,7 +10,7 @@ require_once(__DIR__ . '/../utils/functions.php');
 $json = file_get_contents('php://input');
 $json = json_decode($json,true);
 
-$idCGroup = $json['id'];
+$idCGroup = mysqli_real_escape_string($db,$json['id']);
 $label = $json['label'];
 $nameContact = $json['nameContact'];
 $numberContact = $json['numberContact'];
@@ -30,6 +30,10 @@ if($instance['idInstance'] == null) error('Instância não encontrada');
 $zApiIdInstancia = $instance['zApiIdInstancia'];
 $zApiTokenInstancia = $instance['zApiTokenInstancia'];
 $zApiSecret = $instance['zApiSecret'];
+
+$GC = buscarGC($idCGroup);
+$oldZApiIdInstancia = $GC['zApiIdInstancia'];
+$oldInstance = buscaDadosInstancia($idInstance);
 
 mysqli_begin_transaction($db);
 
@@ -60,8 +64,22 @@ if($status['ok'] != true) {
     error('Instância não conectada com o Whatsapp ou sem conexão com a internet');
 };
 
-$resultRecive       = atualizarWebhookZApiReceber($zApiIdInstancia,$zApiTokenInstancia,$zApiSecret);
-$resultDesconectar  = atualizarWebhookZApiDesconectar($zApiIdInstancia,$zApiTokenInstancia,$zApiSecret);
+if($oldZApiIdInstancia != $zApiIdInstancia){
+    $resultRecive       = atualizarWebhookZApiReceber($zApiIdInstancia,$zApiTokenInstancia,$zApiSecret);
+    $resultDesconectar  = atualizarWebhookZApiDesconectar($zApiIdInstancia,$zApiTokenInstancia,$zApiSecret);
+    
+    if($oldInstance['idInstance'] != null){
+        $instance = buscaDadosInstancia($oldInstance['idInstance']);
+        
+        $zApiIdInstancia = $instance['zApiIdInstancia'];
+        $zApiTokenInstancia = $instance['zApiTokenInstancia'];
+        $zApiSecret = $instance['zApiSecret'];
+
+        $resultRecive       = atualizarWebhookZApiReceber($zApiIdInstancia,$zApiTokenInstancia,$zApiSecret,true);
+        $resultDesconectar  = atualizarWebhookZApiDesconectar($zApiIdInstancia,$zApiTokenInstancia,$zApiSecret,true);
+
+    }
+}
 
 mysqli_commit($db);
 
