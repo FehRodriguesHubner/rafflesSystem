@@ -18,6 +18,7 @@ $req = $json;
 $phoneId            = mysqli_real_escape_string($db,$req['phone']);
 $zApiIdInstanciaReq    = mysqli_real_escape_string($db,$req['instanceId']);
 $messageId          = $req['messageId'];
+$mommentMsg          = $req['momment'];
 
 $participantPhoneId = mysqli_real_escape_string($db,$req['participantPhone']);
 $senderName         = mysqli_real_escape_string($db,$req['senderName']);
@@ -51,7 +52,7 @@ if(count($arrayMsg) >= 10) error('Mais de 10 mensagens',400);
 
 // VALIDA ID MENSAGEM NÃO É DUPLICADO
 // Construct the filename based on zApiIdInstanciaReq
-if($messageId != null || $messageId != 'null'){
+if($mommentMsg != null || $mommentMsg != 'null'){
 
     $fileName = __DIR__ . '/../../groupCache/'. $zApiIdInstanciaReq . '-send.json';
     
@@ -64,19 +65,34 @@ if($messageId != null || $messageId != 'null'){
         $data = json_decode(file_get_contents($fileName), true);
         if (!is_array($data)) {
             // Handle invalid JSON data
-            error('Json messageId inválido');
+            error('Json mommentMsg inválido');
             exit;
         }
     }
     
-    // Check if messageId exists in the array
-    if (in_array($messageId, $data)) {
-        // messageId exists, stop processing
+    // Check if mommentMsg exists in the array
+    if (in_array($mommentMsg, $data)) {
+        // mommentMsg exists, stop processing
         error('já existe message id');
     }
+
+
+    // Current timestamp in seconds (adjusted for potential microseconds)
+    $currentTimestamp = floor($mommentMsg / 1000000);
+
+    // Filter the array based on timestamp difference
+    $filteredData = array_filter($data, function ($item) use ($currentTimestamp) {
+        $itemTimestamp = floor($item / 1000000);
+        $difference = abs($currentTimestamp - $itemTimestamp);
+        return $difference <= 30; // Keep items within 30 seconds
+    });
+
+    // Update data with filtered items
+    $data = $filteredData;
+
     
-    // messageId doesn't exist, add it to the array
-    $data[] = $messageId;
+    // mommentMsg doesn't exist, add it to the array
+    $data[] = $mommentMsg;
     
     // Convert the updated array back to JSON
     $jsonData = json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
