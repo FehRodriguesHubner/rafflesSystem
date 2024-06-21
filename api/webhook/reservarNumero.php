@@ -54,7 +54,7 @@ if(count($arrayMsg) >= 10) error('Mais de 10 mensagens',400);
 // Construct the filename based on zApiIdInstanciaReq
 if($mommentMsg != null || $mommentMsg != 'null'){
 
-    $fileName = __DIR__ . '/../../groupCache/'. $zApiIdInstanciaReq . '-send.json';
+    $fileName = __DIR__ . '/../../groupCache/'. $phoneId . '-send.json';
     
     // Check if the file exists
     if (!file_exists($fileName)) {
