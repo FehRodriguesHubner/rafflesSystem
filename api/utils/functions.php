@@ -563,7 +563,7 @@ function buscarGC($idCGroup){
         i.zApiIdInstancia
         FROM cGroups cg 
         LEFT JOIN instances i USING (idInstance)
-        WHERE cg.idGroup = '{$idCGroup}';";
+        WHERE cg.idCGroup = '{$idCGroup}';";
     if(!$result = mysqli_query($db,$sql)) error('Falha ao buscar GC');
     if(mysqli_num_rows($result) < 1) error('GC não encontrado');
     return mysqli_fetch_assoc($result);
