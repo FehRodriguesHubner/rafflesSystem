@@ -64,10 +64,10 @@ if($status['ok'] != true) {
     error('Instância não conectada com o Whatsapp ou sem conexão com a internet');
 };
 
+$resultRecive       = atualizarWebhookZApiReceber($zApiIdInstancia,$zApiTokenInstancia,$zApiSecret);
+$resultDesconectar  = atualizarWebhookZApiDesconectar($zApiIdInstancia,$zApiTokenInstancia,$zApiSecret);
+
 if($oldZApiIdInstancia != $zApiIdInstancia){
-    $resultRecive       = atualizarWebhookZApiReceber($zApiIdInstancia,$zApiTokenInstancia,$zApiSecret);
-    $resultDesconectar  = atualizarWebhookZApiDesconectar($zApiIdInstancia,$zApiTokenInstancia,$zApiSecret);
-    
     if($oldInstance['idInstance'] != null){
         $instance = buscaDadosInstancia($oldInstance['idInstance']);
         
@@ -75,8 +75,8 @@ if($oldZApiIdInstancia != $zApiIdInstancia){
         $zApiTokenInstancia = $instance['zApiTokenInstancia'];
         $zApiSecret = $instance['zApiSecret'];
 
-        $resultRecive       = atualizarWebhookZApiReceber($zApiIdInstancia,$zApiTokenInstancia,$zApiSecret,true);
-        $resultDesconectar  = atualizarWebhookZApiDesconectar($zApiIdInstancia,$zApiTokenInstancia,$zApiSecret,true);
+        $resultReciveOld       = atualizarWebhookZApiReceber($zApiIdInstancia,$zApiTokenInstancia,$zApiSecret,true);
+        $resultDesconectarOld  = atualizarWebhookZApiDesconectar($zApiIdInstancia,$zApiTokenInstancia,$zApiSecret,true);
 
     }
 }
