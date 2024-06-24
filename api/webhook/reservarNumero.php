@@ -368,7 +368,7 @@ if(!$result = mysqli_query($db,$sql)){
 sleep($sleepSeconds);
 
 /////////////////////////////////////// PÓS SLEEP
-
+$jsonParticipants = buscaParticipantes($idRaffle);
 $listMsg = montaListaGrupo($phoneId, $rowRaffle);
 $lastNumbersString = buscaUltimosNumeros($numbers,$jsonParticipants);
 
