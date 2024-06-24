@@ -52,7 +52,7 @@ if(count($arrayMsg) >= 10) error('Mais de 10 mensagens',400);
 
 // VALIDA ID MENSAGEM NÃO É DUPLICADO
 // Construct the filename based on zApiIdInstanciaReq
-if($mommentMsg != null || $mommentMsg != 'null'){
+if($mommentMsg != null && $mommentMsg != 'null'){
 
     $fileName = __DIR__ . '/../../groupCache/'. $phoneId . '-send.json';
     
