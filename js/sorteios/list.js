@@ -254,7 +254,7 @@ $(function () {
             `;
             Swal.close();
             defaultModal.show();
-            return false;
+            //return false;
 
         }
 
