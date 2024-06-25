@@ -70,6 +70,23 @@ $sql = "SELECT idRaffle FROM raffles WHERE status = 1 AND idGroup = '{$idGroup}'
 $result = mysqli_query($db,$sql);
 $rafflesActive = mysqli_num_rows($result);
 if($status == 1){
+
+    $GC = buscarGCPorGrupo($idGroup);
+    $idInstance = $GC['idInstance'];
+    $instance = buscaDadosInstancia($idInstance);
+    if($instance['idInstance'] == null) error('Instância do Whatsapp não definida. Não é possível ativar o grupo.');
+    $zApiIdInstancia = $instance['zApiIdInstancia'];
+    $zApiTokenInstancia = $instance['zApiTokenInstancia'];
+    $zApiSecret = $instance['zApiSecret'];
+
+    $statusInstancia = verificaStatusZApi($zApiIdInstancia,$zApiTokenInstancia,$zApiSecret);
+    if($statusInstancia['error']) error('Instância do Whatsapp inválida');
+    if($statusInstancia['ok'] != true) {
+        error('Instância do Whatsapp não conectada ou sem conexão com a internet');
+    };
+    $resultRecive       = atualizarWebhookZApiReceber($zApiIdInstancia,$zApiTokenInstancia,$zApiSecret);
+    $resultDesconectar  = atualizarWebhookZApiDesconectar($zApiIdInstancia,$zApiTokenInstancia,$zApiSecret);
+    
     // verifica se há outros sorteios ativos
     if($rafflesActive > 0 ){
         success('Há outro sorteio ativo no grupo, portanto este não será ativado.');
