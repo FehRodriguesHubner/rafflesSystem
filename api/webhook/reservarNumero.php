@@ -27,6 +27,9 @@ if(isset($req['text']['message'])){
 } else
 if(isset($req['image']['caption'])){
     $inputMessage       = $req['image']['caption'];
+} else
+if(isset($req['document']['caption'])){
+    $inputMessage       = $req['document']['caption'];
 }
 
 if($senderName == null || empty($senderName) || trim($senderName) == ""){
@@ -38,8 +41,7 @@ if(
     empty($phoneId) ||
     empty($zApiIdInstanciaReq) ||
     empty($messageId) ||
-    empty($req['text']) || 
-    empty($req['text']['message']) ||
+    empty($inputMessage) ||
     $req['isGroup'] != true
 ){
     http_response_code(400);
