@@ -66,7 +66,7 @@ if($status['ok'] != true) {
 
 $resultRecive       = atualizarWebhookZApiReceber($zApiIdInstancia,$zApiTokenInstancia,$zApiSecret);
 $resultDesconectar  = atualizarWebhookZApiDesconectar($zApiIdInstancia,$zApiTokenInstancia,$zApiSecret);
-
+/*
 if($oldZApiIdInstancia != $zApiIdInstancia){
     if($oldInstance['idInstance'] != null){
         $instance = buscaDadosInstancia($oldInstance['idInstance']);
@@ -79,7 +79,7 @@ if($oldZApiIdInstancia != $zApiIdInstancia){
         $resultDesconectarOld  = atualizarWebhookZApiDesconectar($zApiIdInstancia,$zApiTokenInstancia,$zApiSecret,true);
 
     }
-}
+}*/
 
 mysqli_commit($db);
 
