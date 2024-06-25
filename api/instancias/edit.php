@@ -25,6 +25,14 @@ validate([
     $zApiSecret,
     $orderNumber
  ]);
+
+ $status = verificaStatusZApi($zApiIdInstancia,$zApiTokenInstancia,$zApiSecret);
+ if($status['error']) error('A Instância é inválida');
+ 
+ if($status['ok'] != true) {
+     error('Instância não conectada com o Whatsapp ou sem conexão com a internet');
+ };
+
 $sql = "UPDATE instances SET label = ?, zApiIdInstancia = ?, zApiTokenInstancia = ?, zApiSecret = ?, orderNumber = ? WHERE idInstance = ?";
 
 $stmt = mysqli_prepare($db, $sql);
@@ -49,7 +57,6 @@ if ($stmt) {
     http_response_code(500);
     die(json_encode(['message' => 'Erro ao efetuar atualização', 'debug' => mysqli_error($db)]));
 }
-http_response_code(200);
-die();
 
+success();
 ?>

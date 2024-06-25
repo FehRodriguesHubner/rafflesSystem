@@ -27,6 +27,13 @@ validate([
    $orderNumber
 ]);
 
+$status = verificaStatusZApi($zApiIdInstancia,$zApiTokenInstancia,$zApiSecret);
+if($status['error']) error('A instância é inválida');
+
+if($status['ok'] != true) {
+    error('Instância não conectada com o Whatsapp ou sem conexão com a internet');
+};
+
 $idInstance = getUUID();
 
 $sql = "INSERT INTO instances(
@@ -71,7 +78,6 @@ if ($stmt) {
     die(json_encode(['message' => 'Erro ao efetuar cadastro', 'debug' => mysqli_error($db)]));
 }
 
-http_response_code(200);
-die();
+success();
 
 ?>

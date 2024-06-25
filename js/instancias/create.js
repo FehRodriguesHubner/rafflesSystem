@@ -57,22 +57,9 @@ $(function(){
 
         // REQUISIÇÃO
         popupLoading();
-
-        let fetchResponse = await fetch(`${apiUrl}/${pageSlug}/create.php`, {
-            method: 'PUT',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body:JSON.stringify(jsonCampos)
-        });
-
-        if(fetchResponse.status != 200){
-            dispatchPopup('error','Ops! ocorreu um erro.','Não foi possível ao verificar o resultado de sua ação. Por favor, tente novamente mais tarde.');
-
-            return false;
-
-        }
+        try{
+            await fetchReq(`${pageSlug}/create.php`, jsonCampos);
+        }catch(except){ console.log(except); return;}
 
         dispatchPopup('success','Pronto!','Cadastro realizado com sucesso.').then(function(){
             history.back();

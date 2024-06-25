@@ -58,21 +58,9 @@ $(function(){
         // REQUISIÇÃO
         popupLoading();
 
-        let fetchResponse = await fetch(`${apiUrl}/${pageSlug}/edit.php`, {
-            method: 'PUT',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body:JSON.stringify(jsonCampos)
-        });
-
-        if(fetchResponse.status != 200){
-            dispatchPopup('error','Ops! ocorreu um erro.','Não foi possível ao verificar o resultado de sua ação. Por favor, tente novamente mais tarde.');
-
-            return false;
-
-        }
+        try{
+            await fetchReq(`${pageSlug}/edit.php`, jsonCampos);
+        }catch(except){ console.log(except); return;}
 
         dispatchPopup('success','Pronto!','Atualização realizada com sucesso.').then(function(){
             history.back();
