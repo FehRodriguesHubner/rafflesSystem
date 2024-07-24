@@ -33,8 +33,10 @@ $zApiSecret = $instance['zApiSecret'];
 $dadosGrupo = capturaDadosGrupoZApi($link,$zApiIdInstancia,$zApiTokenInstancia,$zApiSecret);
 $phoneId = $dadosGrupo['phone'];
 
+$idGroup = getUUID();
+
 if ($idGroup == null || $label == null || $phoneId == null || $link == null || $status == null) {
-    error(['message'=>'Dados insuficiêntes. Contate o suporte','debug' => [$result,$endpoint]],400);
+    error(['message'=>'Dados insuficiêntes. Contate o suporte'],400);
 }
 
 $sql = "SELECT idGroup FROM groups WHERE phoneId = '{$phoneId}';";
@@ -51,8 +53,6 @@ if(!$getRefCode['success']){
 }
 $referenceCode = $getRefCode['referenceCode'];
 $referenceCode++;
-
-$idGroup = getUUID();
 
 $sql = "INSERT INTO groups(
     idGroup,
