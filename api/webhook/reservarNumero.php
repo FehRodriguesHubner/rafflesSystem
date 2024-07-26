@@ -123,8 +123,14 @@ $adminPhones = $row['adminPhones'];
 $labelGroup = $row['label'];
 $idStore = $row['idStore'];
 $zApiIdInstancia = $row['zApiIdInstancia'];
+
 if($zApiIdInstancia != $zApiIdInstanciaReq) error('Instância inválida');
 if($botStatus != 1 || $statusGroup != 1) error('Status inativo',400);
+/// VERIFICA SE É UM ADMIN
+if($adminPhones != null){
+    $adminPhones = explode(',',$adminPhones);
+    if(in_array($participantPhoneId,$adminPhones)) die(json_encode(['ref' => 4]));
+}
 
 /// TESTA MENSAGEM INPUTADA (TEXTOMATRIZ)
 if(
@@ -155,11 +161,7 @@ if(!is_numeric($inputMessage)){
 
 $chosenNumber = intval($inputMessage);
 
-/// VERIFICA SE É UM ADMIN
-if($adminPhones != null){
-    $adminPhones = explode(',',$adminPhones);
-    if(in_array($participantPhoneId,$adminPhones)) die(json_encode(['ref' => 4]));
-}
+
 
 
 /// PESQUISA POR SORTEIOS
