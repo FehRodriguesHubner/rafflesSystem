@@ -100,7 +100,7 @@ CREATE TABLE awards(
     idAward varchar(36) primary key not null,
     idRaffle varchar(36) not null,
     referenceCode int not null,
-    description longtext not null,
+    description longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci not null,
     drawnNumber int,
     createdAt datetime default CURRENT_TIMESTAMP(),
     updatedAt datetime ON UPDATE CURRENT_TIMESTAMP(),
