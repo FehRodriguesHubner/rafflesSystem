@@ -124,6 +124,7 @@ $labelGroup = $row['label'];
 $idStore = $row['idStore'];
 $zApiIdInstancia = $row['zApiIdInstancia'];
 if($zApiIdInstancia != $zApiIdInstanciaReq) error('Instância inválida');
+if($botStatus != 1 || $statusGroup != 1) error('Status inativo',400);
 
 /// TESTA MENSAGEM INPUTADA (TEXTOMATRIZ)
 if(
@@ -153,9 +154,6 @@ if(!is_numeric($inputMessage)){
 }
 
 $chosenNumber = intval($inputMessage);
-
-
-if($botStatus != 1 || $statusGroup != 1) error('Status inativo',400);
 
 /// VERIFICA SE É UM ADMIN
 if($adminPhones != null){
