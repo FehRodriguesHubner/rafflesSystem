@@ -300,23 +300,6 @@ $outOfNumbers = false;
 if(count($jsonParticipants) >= $numbers ){
     $outOfNumbers = true;
 
-    // notifica admins
-    if($adminPhones != null){
-        foreach($adminPhones as $adminPhone){
-            $reqRes = enviarMensagemZApi(
-                [
-                    "phone"=> "{$adminPhone}",
-                    "message"=>     "✅ *Venda finalizada*".PHP_EOL.
-                                    "- Grupo: {$labelGroup}".PHP_EOL.
-                                    "- Sorteio: {$referenceRaffle}".PHP_EOL.
-                                    "- Números Vendidos: {$numbers}".PHP_EOL.
-                                    PHP_EOL.
-                                    "Confira os pagamentos e execute o sorteio."
-                ], $phoneId
-            );
-        }
-    }
-
     //desliga bot
     $sql = "UPDATE groups set botStatus = 0 WHERE idGroup = '{$idGroup}';";
     if(!$result = mysqli_query($db,$sql)){
@@ -391,6 +374,32 @@ if(count($jsonParticipants) >= $numbers ){
                             $outOfNumbersText
         ], $phoneId
     );
+
+    // notifica admins
+    $notifyAdmins = true;
+    if($adminPhones != null){
+        $adminPhonesAux = [];
+        foreach($adminPhones as $adminPhone){
+            $adminPhonesAux[$adminPhone] = $adminPhone;
+        }
+        foreach($adminPhonesAux as $adminPhone){
+            //checkpoint
+            $sleepSeconds = rand(15,30);
+            sleep($sleepSeconds);
+            $reqRes = enviarMensagemZApi(
+                [
+                    "phone"=> "{$adminPhone}",
+                    "message"=>     "✅ *Venda finalizada*".PHP_EOL.
+                                    "- Grupo: {$labelGroup}".PHP_EOL.
+                                    "- Sorteio: {$referenceRaffle}".PHP_EOL.
+                                    "- Números Vendidos: {$numbers}".PHP_EOL.
+                                    PHP_EOL.
+                                    "Confira os pagamentos e execute o sorteio."
+                ], $phoneId
+            );
+        }
+    }
+
 } else {
     // Calcular a quantidade de números restantes
     $sold = count($jsonParticipants);
