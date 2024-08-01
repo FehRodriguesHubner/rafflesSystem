@@ -34,6 +34,8 @@ if(isset($req['document']['caption'])){
 
 if($senderName == null || empty($senderName) || trim($senderName) == ""){
     $senderName = "[sem-nome]";
+}else{
+    $senderName =  substr($senderName,0,40);
 }
 
 // VALIDA VARIÁVEIS
